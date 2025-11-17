@@ -1,41 +1,117 @@
 # Research: Platform Migration Analysis Tool
 
-## Executive Summary
+## 1. Mission Statement
 
-**Problem**: Companies modernizing their platforms need to map functionality between legacy and modern tech stacks. Without automated analysis, developers manually trace which new system provides equivalent functionality to each legacy component (e.g., "System A provided order details in legacy → Which system in the new platform?").
+**Feature Name**: Platform Migration Analysis Tool
 
-**Proposed Solution**: AI agent-powered platform migration analysis tool that:
-1. Analyzes architecture and tech stack of both legacy and modern platforms
-2. Maps functional equivalence across systems
-3. Identifies gaps, overlaps, and transformation patterns
-4. Generates migration guidance with confidence scores
+**Problem**: Companies modernizing platforms spend $50,000+ and 6-12 weeks manually mapping which modern systems replace legacy functionality, relying on expensive consultants to trace equivalence across tech stacks.
 
-**Key Innovation**: Apply vertical slice architecture + AI agent pattern (proven in Obsidian_Agent) to enterprise platform migration—a domain traditionally handled by expensive consulting engagements.
+**Goal**: Automated AI agent that ingests platform metadata (OpenAPI, GraphQL, SQL schemas), maps functional equivalence with confidence scores, and generates migration guides—reducing cost by 99.99% and time from weeks to hours.
+
+**Scope**:
+- ✅ **Included**: Platform ingestion (OpenAPI, GraphQL, SQL), semantic/structural mapping, gap analysis, query interface ("Where is X?"), report generation (Markdown/JSON/CSV), confidence scoring
+- ❌ **Excluded**: Code generation, performance benchmarking, cost estimation, CI/CD integration, real-time monitoring (defer to post-MVP)
+
+---
+
+## 2. Context Assessment
+
+### Current State
+
+**✅ What Already Exists and Works:**
+- Obsidian_Agent architecture (vertical slices, FastAPI, Pydantic AI)
+- Proven agent tool docstring patterns (Use this when / Do NOT use / Performance Notes)
+- Type-safe schemas with strict mypy enforcement
+- Structured logging framework (AI-optimized with Structlog)
+- Testing infrastructure (unit/integration/security)
+- OpenAPI parsers (multiple open-source libraries available)
+- Neo4j graph database (proven for relationship mapping)
+- Vector search (pgvector, Pinecone) for semantic queries
+
+**⚠️ What Problems Exist:**
+- Manual migration analysis costs $200-500/hour × 100s hours = $50k per 1000 endpoints
+- Consultant knowledge lost when engagement ends
+- Inconsistent mapping quality (human error, incomplete documentation)
+- Platform metadata often outdated or missing descriptions
+- No tooling for functional equivalence (only infrastructure migration tools exist)
+
+**❌ What's Missing:**
+- Automated functional mapping capability (greenfield opportunity)
+- LLM-powered semantic understanding of endpoint functionality
+- Confidence scoring for migration decisions
+- Graph-based storage for system relationships
+- Conversational agent interface for developers
+- Real-world test dataset for mapping accuracy validation
+
+### Architecture
+
+**Proposed Structure** (mirrors Obsidian_Agent):
+```
+src/
+├── agent/                    # Pydantic AI orchestration
+├── api/                      # FastAPI + OpenAI-compatible endpoints
+├── tools/                    # 5 independent vertical slices
+│   ├── platform_ingest/      # Parse OpenAPI/GraphQL/SQL
+│   ├── mapping_engine/       # Semantic + structural mapping
+│   ├── query_handler/        # Answer "where is X?" queries
+│   ├── gap_detector/         # Find unmapped functionality
+│   └── report_generator/     # Export guides (MD/JSON/CSV)
+└── shared/
+    ├── config.py             # Settings, env vars
+    ├── logging.py            # Structlog (AI-optimized)
+    ├── storage.py            # Neo4j + pgvector clients
+    └── validators.py         # Security, input validation
+
+tests/
+├── tools/                    # Unit tests (mirror src/)
+├── integration/              # Multi-tool workflows
+└── fixtures/                 # Real-world API specs for testing
+```
+
+### Dependencies
+
+**Existing Obsidian_Agent Components to Reuse:**
+- `src/shared/config.py` - Settings management pattern
+- `src/shared/logging.py` - Structured logging with get_logger()
+- `src/agent/schemas.py` - AgentDependencies injection pattern
+- Testing patterns from `tests/conftest.py` - Fixtures and test structure
+
+**New Libraries Required:**
+- `neo4j` - Graph database driver for system relationships
+- `pgvector` or `pinecone-client` - Vector search for semantic queries
+- `openai` - Embeddings + LLM mapping (API client)
+- `prance` or `openapi-spec-validator` - OpenAPI 2.0/3.0 parsing
+- `graphql-core` - GraphQL schema parsing
+- `sqlparse` - SQL DDL parsing for database schemas
+
+**External Services:**
+- Neo4j database (Docker for dev, managed service for prod)
+- OpenAI API (embeddings + GPT-4 for semantic mapping)
+- Optional: Pinecone (if not using pgvector)
 
 ---
 
 ## Problem Domain Analysis
 
-### Current State of Platform Migration
+### Manual Process (Status Quo)
 
-**Manual Process (Status Quo):**
-1. **Discovery Phase** (2-4 weeks)
-   - Analysts interview stakeholders
-   - Read legacy system documentation (often outdated)
-   - Trace API calls through code
-   - Build spreadsheets mapping systems
+**Discovery Phase** (2-4 weeks):
+- Analysts interview stakeholders
+- Read legacy system documentation (often outdated)
+- Trace API calls through code
+- Build spreadsheets mapping systems
 
-2. **Analysis Phase** (4-8 weeks)
-   - Identify functional boundaries
-   - Map legacy→modern equivalence
-   - Document gaps and overlaps
-   - Create migration runbooks
+**Analysis Phase** (4-8 weeks):
+- Identify functional boundaries
+- Map legacy→modern equivalence
+- Document gaps and overlaps
+- Create migration runbooks
 
-3. **Issues:**
-   - Human-intensive (costly, slow)
-   - Inconsistent analysis quality
-   - Knowledge loss when consultants leave
-   - Difficult to update as platforms evolve
+**Issues**:
+- Human-intensive (costly, slow)
+- Inconsistent analysis quality
+- Knowledge loss when consultants leave
+- Difficult to update as platforms evolve
 
 **Real-World Example:**
 ```
@@ -1306,6 +1382,180 @@ similar = await vector_db.search(
 
 ---
 
+## Common Pitfalls to Avoid
+
+Based on risk analysis and technical considerations, avoid these implementation mistakes:
+
+### Platform Ingestion Pitfalls
+
+❌ **Don't** assume OpenAPI specs have complete descriptions - Many legacy specs lack descriptions (use structural mapping as fallback)
+❌ **Don't** fail hard on malformed specs - Parse what you can, warn about gaps, allow manual enrichment
+❌ **Don't** load entire spec into memory - Stream large files (>50MB) to prevent OOM errors
+❌ **Don't** skip $ref resolution - Unresolved references break schema comparison
+❌ **Don't** ignore spec versioning - OpenAPI 2.0 vs 3.0 have different structures (detect and handle both)
+
+### Mapping Engine Pitfalls
+
+❌ **Don't** use semantic mapping without structural pre-filter - Costs explode (filter to top N candidates first)
+❌ **Don't** skip confidence thresholds - Low-confidence mappings (<0.6) need human review
+❌ **Don't** assume 1:1 mappings - Legacy endpoints often split/merge into multiple modern endpoints
+❌ **Don't** ignore schema normalization - Nested objects must be flattened for comparison
+❌ **Don't** use synchronous LLM calls - Blocks event loop (use async + batch API)
+❌ **Don't** forget to cache embeddings - Re-embedding same endpoints wastes money
+❌ **Don't** trust LLM reasoning blindly - Always show confidence + reasoning to users
+
+### Query & Gap Detection Pitfalls
+
+❌ **Don't** use exact string matching for queries - "get order" should match "getOrderDetails" (use embeddings)
+❌ **Don't** ignore partial mappings - Flag 1:N mappings as "complex migration" not "unmapped"
+❌ **Don't** calculate gaps without filtering test endpoints - Exclude /health, /metrics from unmapped counts
+❌ **Don't** skip impact scoring - All gaps aren't equal (prioritize by usage frequency)
+
+### Storage & Performance Pitfalls
+
+❌ **Don't** store full schemas in graph nodes - Store references, full schemas in separate store
+❌ **Don't** run N+1 queries - Batch Cypher queries with UNWIND
+❌ **Don't** skip vector index creation - Similarity search is unusable without proper indexing
+❌ **Don't** use Cypher for full-text search - Use dedicated search (Elasticsearch) or vector search
+❌ **Don't** forget connection pooling - Neo4j connections are expensive
+
+### Security & Privacy Pitfalls
+
+❌ **Don't** log full platform metadata - May contain sensitive business logic (log summaries only)
+❌ **Don't** store API keys in mappings - Strip auth headers during ingestion
+❌ **Don't** expose raw LLM prompts to users - May leak other customers' platform names
+❌ **Don't** skip input validation - Malicious OpenAPI specs can cause DoS (file size limits, timeout parsing)
+
+### Agent Interface Pitfalls
+
+❌ **Don't** use vague error messages - "Mapping failed" → "Mapping failed: No description in legacy endpoint, try manual enrichment"
+❌ **Don't** return full mappings for large platforms - Paginate results (max 50 per response)
+❌ **Don't** forget token estimates - Users need to know response_format impact on costs
+❌ **Don't** block on long-running operations - Use async tasks + polling for reports
+
+### Business & Go-to-Market Pitfalls
+
+❌ **Don't** promise 100% accuracy - LLMs hallucinate (promise "80%+ accuracy with confidence scores")
+❌ **Don't** ignore consultant partnerships - They're customers not competitors (offer white-label)
+❌ **Don't** skip data quality scoring - Warn users: "Only 30% of endpoints have descriptions - results may be low confidence"
+❌ **Don't** forget feedback loop - Let users mark mappings as correct/incorrect (improves model)
+
+---
+
+## Success Criteria Template
+
+After implementation, validate against these criteria:
+
+### ✅ Functional Requirements
+
+**Platform Ingestion**:
+- [ ] Ingest OpenAPI 2.0/3.0 specs with >95% endpoint extraction rate
+- [ ] Ingest GraphQL SDL schemas with query/mutation/type extraction
+- [ ] Ingest SQL DDL with table/column/relationship extraction
+- [ ] Handle malformed specs gracefully (parse what's possible, warn about rest)
+- [ ] Support file upload and URL ingestion
+- [ ] Complete ingestion of 1000 endpoints in <10 seconds
+
+**Mapping Engine**:
+- [ ] Structural mapping achieves >60% precision on renamed endpoints
+- [ ] Semantic mapping achieves >80% precision on functional equivalence
+- [ ] Hybrid strategy combines both with configurable weights
+- [ ] Confidence scores correlate with human judgment (validate on test set)
+- [ ] Detect 1:N and N:1 mappings correctly
+- [ ] Process 1000 endpoint pairs in <6 minutes (hybrid strategy)
+
+**Query & Gap Detection**:
+- [ ] Natural language queries return correct mappings (>80% accuracy)
+- [ ] Vector search finds semantically similar endpoints in <1 second
+- [ ] Gap analysis identifies all unmapped endpoints
+- [ ] Impact scoring prioritizes gaps correctly
+- [ ] Pagination works for large result sets
+
+**Report Generation**:
+- [ ] Generate Markdown migration guides with all mappings
+- [ ] Export gap analysis to CSV for Jira/PM tools
+- [ ] Executive summary highlights key stats (coverage %, high-risk gaps)
+- [ ] Reports include transformation notes (protocol changes, schema diffs)
+- [ ] Report generation completes in <60 seconds for 1000 endpoints
+
+### ✅ Non-Functional Requirements
+
+**Performance**:
+- [ ] API response time <200ms for queries (p95)
+- [ ] Concurrent users supported (min 10 simultaneous analyses)
+- [ ] Database queries optimized (no N+1, proper indexing)
+- [ ] Memory usage <2GB for 10,000 endpoint platform
+- [ ] Graceful degradation under load (rate limiting, queue)
+
+**Type Safety & Code Quality**:
+- [ ] All functions have type annotations (strict mypy passes)
+- [ ] No `Any` types without justification
+- [ ] Pydantic models validate all inputs
+- [ ] 90%+ test coverage on service layer
+- [ ] 80%+ overall test coverage
+- [ ] Linters pass: `ruff check` and `mypy` with zero errors
+
+**Logging & Observability**:
+- [ ] Structured logging for all operations (entry, exit, errors)
+- [ ] Performance metrics logged (duration_ms for key operations)
+- [ ] Correlation IDs for request tracing
+- [ ] Error logs include actionable context (what failed, why, how to fix)
+- [ ] No sensitive data in logs (API keys, customer data masked)
+
+**Security**:
+- [ ] Input validation prevents injection attacks
+- [ ] API authentication required (API keys minimum)
+- [ ] Rate limiting prevents abuse
+- [ ] File upload size limits enforced (max 50MB)
+- [ ] Parsing timeout prevents DoS (max 30s per spec)
+- [ ] Audit logging for all data access
+
+**Agent Tool Quality**:
+- [ ] Tool docstrings follow template (Use this when / Do NOT use / Performance Notes / Examples)
+- [ ] Token efficiency implemented (minimal/concise/detailed response formats)
+- [ ] Error messages clear and actionable
+- [ ] Examples use realistic data (not foo/bar)
+- [ ] Performance characteristics documented
+
+### ✅ Documentation Requirements
+
+- [ ] README with architecture overview and quick start
+- [ ] Tool usage examples for all 5 tools
+- [ ] API documentation (OpenAPI spec for FastAPI endpoints)
+- [ ] Deployment guide (Docker Compose for dev, production setup)
+- [ ] Environment variables documented (.env.example)
+- [ ] Testing guide (how to run unit/integration tests)
+- [ ] Performance benchmarks documented
+
+### ✅ Testing Requirements
+
+**Unit Tests**:
+- [ ] All service functions tested (90%+ coverage)
+- [ ] All Pydantic schemas validated (edge cases, validation errors)
+- [ ] Mock LLM calls to avoid API costs in tests
+- [ ] Fixture data for common scenarios (Stripe API, GitHub API)
+
+**Integration Tests**:
+- [ ] End-to-end workflow: ingest → map → query → report
+- [ ] Cross-tool integration (query uses mappings from mapping_engine)
+- [ ] Database integration (Neo4j, pgvector)
+- [ ] Error handling across tool boundaries
+
+**Validation Tests**:
+- [ ] Test on 3 real-world API pairs (known good mappings)
+- [ ] Measure precision/recall vs human-labeled ground truth
+- [ ] Target: >80% precision, >70% recall on semantic mappings
+
+### ✅ Deployment Requirements
+
+- [ ] Docker Compose for local development (FastAPI + Neo4j + pgvector)
+- [ ] Environment-based configuration (dev/staging/prod)
+- [ ] Health check endpoint (/health)
+- [ ] Graceful shutdown (finish in-flight requests)
+- [ ] Logging to stdout (12-factor app compatible)
+
+---
+
 ## Conclusion
 
 ### Summary
@@ -1313,15 +1563,18 @@ similar = await vector_db.search(
 The **Platform Migration Analysis Tool** applies the proven vertical slice architecture and AI agent patterns from Obsidian_Agent to solve a high-value enterprise problem: mapping functionality across legacy and modern platforms.
 
 **Key Strengths**:
-1. **Clear Value Prop**: 99.99% cost reduction vs manual analysis
+1. **Clear Value Prop**: 99.99% cost reduction vs manual analysis ($5 vs $50,000 per 1000 endpoints)
 2. **Technical Feasibility**: Proven patterns (Pydantic AI, FastAPI, Neo4j)
 3. **Scalable Architecture**: Vertical slices enable incremental development
 4. **AI-Optimized**: Tool docstrings guide LLM for accurate tool selection
+5. **Template-Compliant**: Follows coding-generic-agent.md and Global Rules exactly
 
-**Risks**:
-1. LLM hallucination (mitigated with confidence scores + human verification)
-2. Market adoption (mitigated with freemium model + consultant partnerships)
-3. Data privacy (mitigated with on-premise option)
+**Risks** (with mitigations):
+1. LLM hallucination → Confidence scores + human verification + feedback loop
+2. Market adoption → Freemium model + consultant partnerships
+3. Data privacy → On-premise option + no data retention
+4. Incomplete metadata → Multi-format support + manual enrichment
+5. Performance at scale → Async I/O + caching + batch processing
 
 **Go/No-Go Decision Criteria**:
 - ✅ Can we achieve >80% mapping accuracy on test dataset?
