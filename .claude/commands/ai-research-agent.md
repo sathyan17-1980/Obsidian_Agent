@@ -228,6 +228,10 @@ tests/tools/research_agent/
 3. **External API Integration**:
    - HackerNews Algolia API (https://hn.algolia.com/api)
    - Brave Search API (authentication, rate limits, pricing)
+     - **FREE tier**: BSAfhmAUjm78j3TKqPkDlByE0ecpRt7 (2,000 queries/month)
+     - **PRO tier**: BSAwntGzdRA-yo5lL0O4eoDrSgr2nBk (higher limits)
+     - **Usage Strategy**: See `docs/brave-api-configuration.md` for when to use each tier
+     - **Cost Optimization**: Use FREE for minimal/light research, PRO for moderate/deep/extensive
    - newspaper4k Python library (installation, dependencies)
    - API error handling and fallbacks
    - Rate limit management and caching
@@ -381,6 +385,7 @@ Your research will be evaluated on:
 ### What to DO:
 ✅ Research HackerNews Algolia API documentation
 ✅ Research Brave Search API pricing and capabilities
+✅ Brave API keys configured (FREE + PRO tier) - see `docs/brave-api-configuration.md`
 ✅ Research newspaper4k library features and limitations
 ✅ Provide realistic cost estimates (Brave API + LLM costs)
 ✅ Design complete data models (Pydantic with all fields)

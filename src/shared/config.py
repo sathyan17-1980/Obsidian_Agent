@@ -43,6 +43,13 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     """OpenRouter API key for multi-model access including Claude via OpenRouter."""
 
+    # External API Keys (Research Tools)
+    brave_api_key_free: str = ""
+    """Brave Search API key (free tier) for basic web research."""
+
+    brave_api_key_pro: str = ""
+    """Brave Search API key (pro tier) for extensive web research with higher rate limits."""
+
     # Obsidian Vault Configuration
     obsidian_vault_path: str = ""
     """Path to the Obsidian vault directory. Leave empty to disable vault tools."""
@@ -260,6 +267,24 @@ if settings.openrouter_api_key and not os.environ.get("OPENROUTER_API_KEY"):
         else "***"
     )
     _exported_keys.append(("OPENROUTER_API_KEY", masked_key))
+
+if settings.brave_api_key_free and not os.environ.get("BRAVE_API_KEY_FREE"):
+    os.environ["BRAVE_API_KEY_FREE"] = settings.brave_api_key_free
+    masked_key = (
+        settings.brave_api_key_free[:_API_KEY_MASK_LENGTH] + "..."
+        if len(settings.brave_api_key_free) > _API_KEY_MASK_LENGTH
+        else "***"
+    )
+    _exported_keys.append(("BRAVE_API_KEY_FREE", masked_key))
+
+if settings.brave_api_key_pro and not os.environ.get("BRAVE_API_KEY_PRO"):
+    os.environ["BRAVE_API_KEY_PRO"] = settings.brave_api_key_pro
+    masked_key = (
+        settings.brave_api_key_pro[:_API_KEY_MASK_LENGTH] + "..."
+        if len(settings.brave_api_key_pro) > _API_KEY_MASK_LENGTH
+        else "***"
+    )
+    _exported_keys.append(("BRAVE_API_KEY_PRO", masked_key))
 
 
 def log_exported_api_keys() -> None:
