@@ -1,0 +1,227 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # FastAPI Application (Customer Journey Analysis Tool)
+  # =============================================================================
+  app:
+    build:
+      context: ../../../
+      dockerfile: deployment/Dockerfile
+    container_name: customer_journey_app
+    restart: unless-stopped
+    ports:
+      - "8030:8030"
+    environment:
+      # Application Settings
+      APP_ENV: ${APP_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      WORKERS: ${WORKERS:-4}
+
+      # Database Settings (PostgreSQL + TimescaleDB)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-journey_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-customer_journey}
+      DATABASE_POOL_SIZE: ${DATABASE_POOL_SIZE:-20}
+      DATABASE_MAX_OVERFLOW: ${DATABASE_MAX_OVERFLOW:-10}
+
+      # Redis Settings
+      REDIS_URL: redis://redis:6379/0
+      REDIS_MAX_CONNECTIONS: ${REDIS_MAX_CONNECTIONS:-50}
+
+      # API Keys
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+      # Obsidian Integration
+      OBSIDIAN_VAULT_PATH: ${OBSIDIAN_VAULT_PATH:-/data/obsidian_vault}
+
+      # Security
+      API_KEY_SALT: ${API_KEY_SALT:-changeme_random_salt}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,https://yourdomain.com}
+
+      # Event Processing
+      MAX_EVENT_BATCH_SIZE: ${MAX_EVENT_BATCH_SIZE:-100}
+      EVENT_PROCESSING_TIMEOUT: ${EVENT_PROCESSING_TIMEOUT:-30}
+
+      # Session Configuration
+      SESSION_TIMEOUT_MINUTES: ${SESSION_TIMEOUT_MINUTES:-30}
+
+      # Performance Limits
+      MAX_WIKILINK_SCAN_NOTES: ${MAX_WIKILINK_SCAN_NOTES:-1000}
+      MAX_FOLDER_DEPTH: ${MAX_FOLDER_DEPTH:-10}
+
+    volumes:
+      # Obsidian vault storage
+      - obsidian_vault:/data/obsidian_vault
+      # Session recordings (if using local disk)
+      - session_recordings:/data/recordings
+      # Application logs
+      - app_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - customer_journey_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # PostgreSQL + TimescaleDB (Time-Series Database)
+  # =============================================================================
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: customer_journey_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-journey_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-customer_journey}
+      # Performance tuning for 4GB RAM VPS
+      POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-1GB}
+      POSTGRES_EFFECTIVE_CACHE_SIZE: ${POSTGRES_EFFECTIVE_CACHE_SIZE:-3GB}
+      POSTGRES_MAINTENANCE_WORK_MEM: ${POSTGRES_MAINTENANCE_WORK_MEM:-256MB}
+      POSTGRES_WORK_MEM: ${POSTGRES_WORK_MEM:-32MB}
+      POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-100}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      - postgres_backups:/backups
+    ports:
+      - "5432:5432"  # Expose for debugging (remove in production)
+    networks:
+      - customer_journey_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-journey_user} -d ${POSTGRES_DB:-customer_journey}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=3GB"
+      - "-c"
+      - "maintenance_work_mem=256MB"
+      - "-c"
+      - "work_mem=32MB"
+
+  # =============================================================================
+  # Redis (Cache + Event Queue)
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: customer_journey_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"  # Expose for debugging (remove in production)
+    networks:
+      - customer_journey_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # Nginx (Reverse Proxy + SSL + SDK Static Files)
+  # =============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: customer_journey_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./sdk/dist:/usr/share/nginx/html/sdk:ro  # SDK static files
+      - nginx_logs:/var/log/nginx
+      - letsencrypt_certs:/etc/letsencrypt
+      - letsencrypt_www:/var/www/certbot
+    depends_on:
+      - app
+    networks:
+      - customer_journey_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Certbot (SSL Certificate Management - Let's Encrypt)
+  # =============================================================================
+  certbot:
+    image: certbot/certbot
+    container_name: customer_journey_certbot
+    volumes:
+      - letsencrypt_certs:/etc/letsencrypt
+      - letsencrypt_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - customer_journey_network
+
+  # =============================================================================
+  # Backup Service (Automated Daily Backups)
+  # =============================================================================
+  backup:
+    image: alpine:latest
+    container_name: customer_journey_backup
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/postgres_data:ro
+      - redis_data:/redis_data:ro
+      - obsidian_vault:/obsidian_vault:ro
+      - backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    entrypoint: "/bin/sh -c 'apk add --no-cache postgresql-client && crond -f'"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-journey_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-customer_journey}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    networks:
+      - customer_journey_network
+
+# =============================================================================
+# Named Volumes (Persistent Data Storage)
+# =============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  postgres_backups:
+    driver: local
+  redis_data:
+    driver: local
+  obsidian_vault:
+    driver: local
+  session_recordings:
+    driver: local
+  app_logs:
+    driver: local
+  nginx_logs:
+    driver: local
+  letsencrypt_certs:
+    driver: local
+  letsencrypt_www:
+    driver: local
+  backups:
+    driver: local
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  customer_journey_network:
+    driver: bridge
