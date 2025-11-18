@@ -561,8 +561,8 @@ Create organized folder structure in Obsidian vault for all research outputs.
 **Folder structure:**
 ```
 {OBSIDIAN_VAULT_PATH}/research/{YYYY-MM-DD}-{topic-slug}/
-├── research-topic.md          # Topic metadata and request details
-├── research-summary.md        # Aggregated research findings
+├── research-topic.md                    # Topic metadata and request details
+├── research-summary.md                  # Aggregated research findings
 ├── linkedin/
 │   ├── draft-1-technical.md
 │   ├── draft-2-story.md
@@ -571,10 +571,11 @@ Create organized folder structure in Obsidian vault for all research outputs.
 │   ├── draft-1-technical.md
 │   ├── draft-2-story.md
 │   └── draft-3-balanced.md
-├── sources.md                 # All citations (numbered)
-├── conflicts.md               # Detected conflicts and resolutions
-├── metadata.json              # Machine-readable metadata
-└── user-selection.md          # Placeholder for user's chosen drafts
+├── sources.md                           # All citations (numbered)
+├── conflicts.md                         # Detected conflicts and resolutions
+├── metadata.json                        # Machine-readable metadata
+├── user-selection.md                    # Placeholder for user's chosen drafts
+└── {topic-slug}_research_all_drafts.pdf # Comprehensive PDF with all 6 drafts
 ```
 
 **Create topic slug:**
@@ -1031,8 +1032,10 @@ Before completing, verify all requirements met:
   - `conflicts.md` (if conflicts detected)
   - `metadata.json`
   - `user-selection.md` (template)
+  - `{topic-slug}_research_all_drafts.pdf`
 - ✅ All files have proper frontmatter
 - ✅ All files are valid markdown
+- ✅ PDF file created and readable (70-100KB)
 
 ### Step 8: Report Results
 
@@ -1092,6 +1095,7 @@ Provide comprehensive summary to user:
 - {num_drafts} Blog drafts
 - {total_sources} sources documented
 - {conflict_count} conflicts documented (if any)
+- Comprehensive PDF with all 6 drafts
 
 ### Next Steps
 
@@ -1148,6 +1152,172 @@ Review `conflicts.md` for details and manual resolution.
 
 {If any validation warnings:}
 ⚠️ Warnings: {list any warnings from validation}
+```
+
+### Step 9: Generate Comprehensive PDF
+
+Create a professionally formatted PDF containing all 6 content drafts for easy sharing and offline review.
+
+**Prerequisites Check:**
+- Verify weasyprint is installed: `python3 -c "from weasyprint import HTML"`
+- If not installed: `pip install weasyprint`
+
+**PDF Generation Process:**
+
+1. **Create HTML Template**
+   - Generate comprehensive HTML file with all drafts
+   - Include professional styling (fonts, colors, spacing, page breaks)
+   - Add table of contents and metadata
+
+2. **HTML Structure:**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{topic} - Research Drafts</title>
+    <style>
+        /* Professional styling with page breaks, typography, colors */
+    </style>
+</head>
+<body>
+    <!-- Cover page -->
+    <!-- LinkedIn section (3 drafts) -->
+    <!-- Blog section (3 drafts) -->
+    <!-- Research methodology -->
+</body>
+</html>
+```
+
+3. **Content to Include:**
+   - **Cover Page:**
+     - Research title
+     - Generation date
+     - Research metrics (depth, sources, drafts)
+     - Quick statistics
+
+   - **LinkedIn Posts Section:**
+     - All 3 drafts with full metadata
+     - Strategy explanations
+     - Engagement predictions
+     - Hashtags and citations
+
+   - **Blog Articles Section:**
+     - All 3 drafts with complete content
+     - SEO scores
+     - Reading time estimates
+     - Technical examples and code blocks
+
+   - **About Section:**
+     - Research methodology
+     - Source breakdown
+     - Quality metrics
+     - Usage recommendations
+
+4. **Convert HTML to PDF:**
+```python
+from weasyprint import HTML
+HTML('/tmp/{topic_slug}_all_drafts.html').write_pdf('/tmp/{topic_slug}_research_all_drafts.pdf')
+```
+
+5. **Copy PDF to Multiple Locations:**
+   - Project root: `/home/user/Obsidian_Agent/{topic_slug}_research_all_drafts.pdf`
+   - Obsidian vault: `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/{topic_slug}_research_all_drafts.pdf`
+
+6. **Verify PDF Creation:**
+   - Check file exists
+   - Verify file size (should be 70-100KB typically)
+   - Confirm readability
+
+**Expected Output:**
+- Professional 20-25 page PDF
+- File size: 70-100 KB
+- All 6 drafts with metadata
+- Easy to share and print
+
+### Step 10: Commit and Push to Git Repository
+
+Automatically commit the PDF to the current git branch and push to remote.
+
+**Git Operations:**
+
+1. **Verify Git Status:**
+```bash
+git status
+```
+   - Confirm we're on the correct branch (should start with `claude/`)
+   - Check for untracked files
+
+2. **Add PDF to Git:**
+```bash
+git add {topic_slug}_research_all_drafts.pdf
+```
+
+3. **Create Descriptive Commit:**
+```bash
+git commit -m "$(cat <<'EOF'
+Add comprehensive PDF with {topic} research drafts
+
+Generated downloadable PDF containing all 6 content drafts (3 LinkedIn posts + 3 blog articles) from the {topic} research. Includes professional formatting, metadata, and usage recommendations.
+
+Research metrics:
+- Depth: {depth}
+- Sources: {total_sources}
+- Word count: ~{total_words}
+- SEO scores: {avg_seo}
+- Quality: All validation checks passed
+EOF
+)"
+```
+
+4. **Push to Remote:**
+```bash
+git push -u origin {current-branch}
+```
+   - Use current branch name (e.g., `claude/add-research-consolidator-command-01WGSPJAiMcq5dSaWYxGXdap`)
+   - Include `-u` flag to set upstream tracking
+   - Retry up to 4 times with exponential backoff (2s, 4s, 8s, 16s) if network errors occur
+
+5. **Verify Success:**
+```bash
+git status
+```
+   - Confirm working tree is clean
+   - Verify branch is up-to-date with remote
+
+**Error Handling:**
+- **If not in git repository:** Skip git operations, warn user
+- **If branch doesn't match pattern:** Verify with user before pushing
+- **If push fails (403):** Check branch name starts with `claude/` and ends with session ID
+- **If network error:** Retry with exponential backoff
+- **If conflicts exist:** Halt and notify user to resolve manually
+
+**Expected Output:**
+- PDF committed to current branch
+- Pushed to remote repository
+- Working tree clean
+- User can access PDF from repository
+
+**Final Confirmation Message:**
+```markdown
+## ✅ PDF Generated and Pushed Successfully
+
+**PDF Details:**
+- **Filename:** {topic_slug}_research_all_drafts.pdf
+- **Size:** {file_size} KB
+- **Pages:** 20-25 pages
+
+**Locations:**
+1. **Project root:** `/home/user/Obsidian_Agent/{topic_slug}_research_all_drafts.pdf`
+2. **Obsidian vault:** `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/{topic_slug}_research_all_drafts.pdf`
+3. **Git repository:** Committed and pushed to `{branch_name}`
+
+**Git Status:**
+- ✅ Committed with descriptive message
+- ✅ Pushed to remote repository
+- ✅ Working tree clean
+
+You can now download the PDF from your repository or find it in the locations above! 🎉
 ```
 
 ---
