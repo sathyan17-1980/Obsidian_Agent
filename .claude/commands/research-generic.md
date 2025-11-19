@@ -280,7 +280,8 @@ Create organized folder structure:
 ├── output.md                  # Generated output in requested format
 ├── sources.md                 # All citations and references
 ├── conflicts.md               # Detected conflicts (if any)
-└── metadata.json              # Research metadata and stats
+├── metadata.json              # Research metadata and stats
+└── {topic-slug}_research.pdf  # Comprehensive PDF with research output
 ```
 
 **Files to create:**
@@ -345,6 +346,172 @@ After completing the research, provide a summary:
 - Review output in Obsidian
 - Check conflicts.md if unresolved conflicts exist
 - Use for further content generation or analysis
+- Download PDF for offline review or sharing
+```
+
+### Step 8: Generate Comprehensive PDF
+
+Create a professionally formatted PDF containing the complete research output for easy sharing and offline review.
+
+**Prerequisites Check:**
+- Verify weasyprint is installed: `python3 -c "from weasyprint import HTML"`
+- If not installed: `pip install weasyprint`
+
+**PDF Generation Process:**
+
+1. **Create HTML Template**
+   - Generate comprehensive HTML file with research output
+   - Include professional styling (fonts, colors, spacing, page breaks)
+   - Add metadata and table of contents
+
+2. **HTML Structure:**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{topic} - Research Report</title>
+    <style>
+        /* Professional styling with page breaks, typography, colors */
+    </style>
+</head>
+<body>
+    <!-- Cover page -->
+    <!-- Research output in requested format -->
+    <!-- Sources and references -->
+    <!-- Research methodology -->
+</body>
+</html>
+```
+
+3. **Content to Include:**
+   - **Cover Page:**
+     - Research title
+     - Generation date
+     - Research metrics (depth, format, sources, word count)
+     - Quick statistics
+
+   - **Main Content:**
+     - Complete output in requested format
+     - All sections with proper formatting
+     - Code examples and technical content
+     - Citations and inline references
+
+   - **Sources Section:**
+     - All citations numbered and formatted
+     - Source authority scores
+     - Publication dates and URLs
+
+   - **Methodology Section:**
+     - 6 sources breakdown
+     - Research parameters
+     - Quality metrics
+     - Conflict resolutions (if any)
+
+4. **Convert HTML to PDF:**
+```python
+from weasyprint import HTML
+HTML('/tmp/{topic_slug}_research.html').write_pdf('/tmp/{topic_slug}_research.pdf')
+```
+
+5. **Copy PDF to Multiple Locations:**
+   - Project root: `/home/user/Obsidian_Agent/{topic_slug}_research.pdf`
+   - Obsidian vault: `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/{topic_slug}_research.pdf`
+
+6. **Verify PDF Creation:**
+   - Check file exists
+   - Verify file size (should be 50-150KB typically, depending on content length)
+   - Confirm readability
+
+**Expected Output:**
+- Professional 10-30 page PDF (depending on format and word count)
+- File size: 50-150 KB
+- Complete research output with citations
+- Easy to share and print
+
+### Step 9: Commit and Push to Git Repository
+
+Automatically commit the PDF to the current git branch and push to remote.
+
+**Git Operations:**
+
+1. **Verify Git Status:**
+```bash
+git status
+```
+   - Confirm we're on the correct branch (should start with `claude/`)
+   - Check for untracked files
+
+2. **Add PDF to Git:**
+```bash
+git add {topic_slug}_research.pdf
+```
+
+3. **Create Descriptive Commit:**
+```bash
+git commit -m "$(cat <<'EOF'
+Add research PDF for {topic}
+
+Generated comprehensive research document in {format} format covering {topic}. Includes all sources, citations, and methodology.
+
+Research metrics:
+- Depth: {depth}
+- Format: {format}
+- Sources: {total_sources}
+- Word count: {word_count}
+- Quality: All validation checks passed
+EOF
+)"
+```
+
+4. **Push to Remote:**
+```bash
+git push -u origin {current-branch}
+```
+   - Use current branch name (e.g., `claude/...`)
+   - Include `-u` flag to set upstream tracking
+   - Retry up to 4 times with exponential backoff (2s, 4s, 8s, 16s) if network errors occur
+
+5. **Verify Success:**
+```bash
+git status
+```
+   - Confirm working tree is clean
+   - Verify branch is up-to-date with remote
+
+**Error Handling:**
+- **If not in git repository:** Skip git operations, warn user
+- **If branch doesn't match pattern:** Verify with user before pushing
+- **If push fails (403):** Check branch name starts with `claude/` and ends with session ID
+- **If network error:** Retry with exponential backoff
+- **If conflicts exist:** Halt and notify user to resolve manually
+
+**Expected Output:**
+- PDF committed to current branch
+- Pushed to remote repository
+- Working tree clean
+- User can access PDF from repository
+
+**Final Confirmation Message:**
+```markdown
+## ✅ PDF Generated and Pushed Successfully
+
+**PDF Details:**
+- **Filename:** {topic_slug}_research.pdf
+- **Size:** {file_size} KB
+- **Pages:** {page_count} pages
+
+**Locations:**
+1. **Project root:** `/home/user/Obsidian_Agent/{topic_slug}_research.pdf`
+2. **Obsidian vault:** `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/{topic_slug}_research.pdf`
+3. **Git repository:** Committed and pushed to `{branch_name}`
+
+**Git Status:**
+- ✅ Committed with descriptive message
+- ✅ Pushed to remote repository
+- ✅ Working tree clean
+
+You can now download the PDF from your repository or find it in the locations above! 🎉
 ```
 
 ---
@@ -392,6 +559,8 @@ Before marking complete, verify:
 - ✅ Proper markdown formatting
 - ✅ Technical level matches request
 - ✅ No hallucinations (all info source-backed)
+- ✅ PDF file created and readable
+- ✅ PDF committed and pushed to git repository
 
 ---
 
