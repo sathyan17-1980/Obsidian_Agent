@@ -44,6 +44,12 @@ The Generic Research Consolidator is a versatile multi-source research system th
    - Sources and citations
    - Metadata and conflicts
 
+5. **Exports to PDF and Git:**
+   - Professional PDF generation with all research content
+   - Automatic git commit with descriptive messages
+   - Push to remote repository for version control
+   - Downloadable format for sharing and offline review
+
 ---
 
 ## Architecture
@@ -73,6 +79,12 @@ FLEXIBLE OUTPUT GENERATION
          |
          v
 OBSIDIAN VAULT STORAGE
+         |
+         v
+PDF GENERATION (Weasyprint)
+         |
+         v
+GIT COMMIT & PUSH
 ```
 
 ---
@@ -351,11 +363,12 @@ All outputs saved to your local Obsidian vault:
 ObsidianVault/
 ├── research/
 │   ├── 2025-11-17-quantum-computing/
-│   │   ├── research-topic.md          # Metadata
-│   │   ├── output.md                  # Generated output
-│   │   ├── sources.md                 # All citations (28+)
-│   │   ├── conflicts.md               # Detected conflicts (if any)
-│   │   └── metadata.json              # Research metadata
+│   │   ├── research-topic.md                    # Metadata
+│   │   ├── output.md                            # Generated output
+│   │   ├── sources.md                           # All citations (28+)
+│   │   ├── conflicts.md                         # Detected conflicts (if any)
+│   │   ├── metadata.json                        # Research metadata
+│   │   └── quantum_computing_research.pdf       # Professional PDF export
 │   │
 │   ├── 2025-11-18-neural-networks/
 │   │   └── ...
@@ -371,7 +384,79 @@ ObsidianVault/
 
 ---
 
+## PDF Generation & Git Integration
+
+### Professional PDF Export
+
+Every research query automatically generates a comprehensive PDF document containing:
+
+**Content Included:**
+- Cover page with research metadata (topic, date, depth, format, metrics)
+- Complete research output in requested format
+- All sources with numbered citations and authority scores
+- Research methodology breakdown (6 sources used)
+- Conflict resolutions (if any)
+- Professional styling with page breaks and typography
+
+**Technical Details:**
+- **Generation Tool:** Weasyprint (HTML to PDF conversion)
+- **File Size:** Typically 50-150 KB depending on content length
+- **Pages:** 10-30 pages for standard research outputs
+- **Format:** Professional, print-ready PDF with proper formatting
+
+**PDF Locations:**
+1. **Project root:** `/home/user/Obsidian_Agent/{topic_slug}_research.pdf`
+2. **Obsidian vault:** `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/{topic_slug}_research.pdf`
+3. **Git repository:** Automatically committed and pushed to current branch
+
+### Automatic Git Integration
+
+All research PDFs are automatically version-controlled:
+
+**Git Workflow:**
+1. **Status Check:** Verifies current branch and git state
+2. **Stage PDF:** Adds generated PDF to git staging area
+3. **Descriptive Commit:** Creates commit with research metrics and metadata
+4. **Push to Remote:** Pushes to current branch with retry logic
+
+**Commit Message Format:**
+```
+Add research PDF for {topic}
+
+Generated comprehensive research document in {format} format covering {topic}.
+Includes all sources, citations, and methodology.
+
+Research metrics:
+- Depth: {depth}
+- Format: {format}
+- Sources: {total_sources}
+- Word count: {word_count}
+- Quality: All validation checks passed
+```
+
+**Network Resilience:**
+- Automatic retry on network errors (up to 4 attempts)
+- Exponential backoff: 2s, 4s, 8s, 16s intervals
+- Branch validation (must start with `claude/`)
+- Error handling for permissions and conflicts
+
+**Benefits:**
+- ✅ Version control for all research outputs
+- ✅ Easy sharing via repository links
+- ✅ Collaboration and review workflows
+- ✅ Automatic backup and history
+- ✅ Download from any device with git access
+
+---
+
 ## Configuration
+
+### Required Dependencies
+
+```bash
+# Python packages (install if missing)
+pip install weasyprint  # For PDF generation
+```
 
 ### Required Environment Variables
 
@@ -388,6 +473,9 @@ GOOGLE_DRIVE_CREDENTIALS_PATH=.credentials/google_drive_credentials.json
 
 # LLM API
 ANTHROPIC_API_KEY=sk-ant-your-key-here
+
+# Git (optional - for automatic commits)
+# Ensure you're on a branch starting with 'claude/' for automatic push
 ```
 
 ---
@@ -848,6 +936,13 @@ research_generic(
 - ✅ No hallucinations
 - ✅ Proper formatting
 
+### PDF & Git Integration
+- ✅ PDF file created and readable (50-150 KB)
+- ✅ PDF copied to project root and Obsidian vault
+- ✅ Git commit created with descriptive message
+- ✅ PDF pushed to remote repository
+- ✅ Working tree clean after operations
+
 ---
 
 ## Troubleshooting
@@ -868,6 +963,18 @@ research_generic(
 **Cause:** Wrong technical_level setting
 **Fix:** Adjust technical_level parameter
 
+### Issue: "PDF generation failed"
+**Cause:** Weasyprint not installed or HTML formatting error
+**Fix:** Run `pip install weasyprint` or check HTML template
+
+### Issue: "Git push failed (403)"
+**Cause:** Branch name doesn't match required pattern
+**Fix:** Ensure branch starts with `claude/` and ends with session ID
+
+### Issue: "Git push failed (network error)"
+**Cause:** Network connectivity issues
+**Fix:** Automatic retry with exponential backoff (2s, 4s, 8s, 16s)
+
 ---
 
 ## Differences from research-topic-merged.md
@@ -881,6 +988,8 @@ research_generic(
 | **Paraphrasing** | Not required | Required (plagiarism prevention) |
 | **Word Count** | Flexible (500-3000+) | Fixed (LinkedIn 150-300, Blog 800-1500) |
 | **Target Audience** | Researchers, learners, analysts | Content creators, marketers |
+| **PDF Export** | ✅ Single comprehensive PDF | ✅ All 6 drafts in one PDF |
+| **Git Integration** | ✅ Automatic commit & push | ✅ Automatic commit & push |
 
 ---
 
@@ -913,5 +1022,9 @@ research_generic(
 ---
 
 **Status:** ✅ READY FOR USE
-**Version:** 1.0
-**Date:** 2025-11-17
+**Version:** 1.1
+**Date:** 2025-11-19
+**Updates:**
+- ✅ Added professional PDF generation with Weasyprint
+- ✅ Automatic git commit and push integration
+- ✅ Enhanced documentation with troubleshooting
