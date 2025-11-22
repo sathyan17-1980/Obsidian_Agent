@@ -28,12 +28,655 @@ This document provides a comprehensive testing and validation strategy for the f
 
 **Total Test Count**: 42+ automated tests
 **Manual Validation Scenarios**: 8 scenarios
-**Quality Gates**: 7 gates
+**Quality Gates**: 10 gates
 **Target Coverage**: >90% on service layer
 
 ---
 
-## 1. Unit Testing Strategy
+## 1. Pre-Deployment Validation
+
+**Purpose**: Comprehensive validation before deployment to ensure code quality, security, and correctness.
+
+All pre-deployment validations must pass before code is merged to main branch. These validations are automated via CI/CD and run on every pull request.
+
+---
+
+### 1.1 Dependency Validation
+
+**Purpose**: Ensure all dependencies are correctly specified, compatible, and secure.
+
+#### Validation 1.1.1: Dependency Installation Check
+**Tool**: UV package manager
+**Command**:
+```bash
+uv sync --frozen
+```
+
+**Validates**:
+- [ ] All dependencies in `pyproject.toml` can be resolved
+- [ ] No conflicting version requirements
+- [ ] Lock file (if exists) matches pyproject.toml
+- [ ] Installation completes without errors
+- [ ] Python version requirement met (>=3.12)
+
+**Success Criteria**: Exit code 0, all packages installed
+
+**Failure Handling**:
+- Check pyproject.toml for version conflicts
+- Update dependency versions if needed
+- Regenerate lock file: `uv lock`
+
+---
+
+#### Validation 1.1.2: Dependency Version Verification
+**Tool**: UV + custom script
+**Command**:
+```bash
+uv pip list --format=json | python scripts/check_versions.py
+```
+
+**Validates**:
+- [ ] Core dependencies present:
+  - `fastapi >= 0.119.0`
+  - `pydantic >= 2.12.2`
+  - `pydantic-ai >= 1.0.18`
+  - `structlog >= 25.4.0`
+  - `aiofiles >= 25.1.0`
+  - `aioshutil >= 1.3`
+- [ ] Dev dependencies present:
+  - `pytest >= 8.4.2`
+  - `pytest-asyncio >= 1.2.0`
+  - `pytest-cov >= 4.0.0` (if coverage enabled)
+  - `mypy >= 1.18.2`
+  - `ruff >= 0.14.0`
+
+**Success Criteria**: All required dependencies at minimum versions
+
+---
+
+#### Validation 1.1.3: Dependency Security Audit
+**Tool**: `pip-audit` or `safety` (if available)
+**Command**:
+```bash
+uv pip list --format=json | safety check --stdin
+# OR
+pip-audit
+```
+
+**Validates**:
+- [ ] No known security vulnerabilities in dependencies
+- [ ] No deprecated packages with security issues
+- [ ] All CVE warnings addressed
+
+**Success Criteria**: 0 high/critical vulnerabilities
+
+**Acceptable**: Low/medium vulnerabilities with documented acceptance
+
+---
+
+#### Validation 1.1.4: Import Verification
+**Tool**: Python import check
+**Command**:
+```bash
+python -c "
+import src.tools.obsidian_folder_manager.tool
+import src.tools.obsidian_folder_manager.schemas
+import src.tools.obsidian_folder_manager.service
+import src.shared.config
+import src.shared.logging
+import src.shared.vault_security
+print('All imports successful')
+"
+```
+
+**Validates**:
+- [ ] All source modules can be imported
+- [ ] No import errors or circular dependencies
+- [ ] All third-party imports available
+
+**Success Criteria**: No ImportError exceptions
+
+---
+
+### 1.2 Linting and Type Checking
+
+**Purpose**: Enforce code quality standards and type safety.
+
+#### Validation 1.2.1: Ruff Linting
+**Tool**: Ruff
+**Command**:
+```bash
+uv run ruff check src/tools/obsidian_folder_manager/ --output-format=github
+uv run ruff check src/shared/config.py --output-format=github
+```
+
+**Configuration**: Uses ruff defaults + project-specific rules
+
+**Validates**:
+- [ ] No syntax errors
+- [ ] No unused imports
+- [ ] No undefined variables
+- [ ] PEP 8 compliance (line length, naming conventions)
+- [ ] No complexity issues (if configured)
+- [ ] Import ordering correct
+- [ ] No common anti-patterns
+
+**Success Criteria**:
+- **MUST**: 0 errors
+- **SHOULD**: 0 warnings
+- **Acceptable**: Warnings with documented rationale (e.g., `# noqa: <code>`)
+
+**Failure Handling**:
+```bash
+# Auto-fix what can be fixed
+uv run ruff check --fix src/tools/obsidian_folder_manager/
+
+# Review remaining issues manually
+uv run ruff check src/tools/obsidian_folder_manager/
+```
+
+---
+
+#### Validation 1.2.2: Ruff Formatting
+**Tool**: Ruff formatter
+**Command**:
+```bash
+uv run ruff format --check src/tools/obsidian_folder_manager/
+uv run ruff format --check src/shared/config.py
+```
+
+**Validates**:
+- [ ] Code formatted consistently
+- [ ] Line length compliance (<100 chars)
+- [ ] Indentation correct (4 spaces)
+- [ ] String quote consistency
+
+**Success Criteria**: 0 files need reformatting
+
+**Failure Handling**:
+```bash
+# Auto-format all files
+uv run ruff format src/tools/obsidian_folder_manager/
+```
+
+---
+
+#### Validation 1.2.3: MyPy Type Checking (Strict Mode)
+**Tool**: MyPy
+**Command**:
+```bash
+uv run mypy src/tools/obsidian_folder_manager/ --strict
+uv run mypy src/shared/config.py --strict
+```
+
+**Configuration** (from `pyproject.toml`):
+```toml
+[tool.mypy]
+python_version = "3.12"
+strict = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+warn_return_any = true
+warn_unused_configs = true
+```
+
+**Validates**:
+- [ ] All functions have type hints
+- [ ] All parameters typed
+- [ ] All return values typed
+- [ ] No `Any` types without justification
+- [ ] No untyped function calls
+- [ ] No implicit optionals
+- [ ] Generics properly typed
+
+**Success Criteria**:
+- **MUST**: 0 errors
+- **Code Coverage**: 100% of functions have type annotations
+
+**Common Patterns**:
+```python
+# ✅ GOOD: Full type annotations
+async def archive_folder(
+    full_path: Path,
+    request: ManageFolderRequest,
+    vault_path: str,
+) -> FolderOperationResult:
+    ...
+
+# ❌ BAD: No type annotations
+async def archive_folder(full_path, request, vault_path):
+    ...
+
+# ❌ BAD: Using Any
+from typing import Any
+def process(data: Any) -> Any:
+    ...
+```
+
+---
+
+#### Validation 1.2.4: Type Coverage Report
+**Tool**: MyPy with coverage report
+**Command**:
+```bash
+uv run mypy src/tools/obsidian_folder_manager/ --strict --html-report mypy-report/
+```
+
+**Validates**:
+- [ ] Type coverage >99% (target: 100%)
+- [ ] No untyped code paths
+- [ ] All public APIs fully typed
+
+**Success Criteria**: HTML report shows >99% typed
+
+---
+
+### 1.3 Unit Tests (Pytest)
+
+**Purpose**: Test individual components in isolation.
+
+#### Validation 1.3.1: Run All Unit Tests
+**Tool**: Pytest
+**Command**:
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/ -v -m unit
+```
+
+**Configuration** (from `pyproject.toml`):
+```toml
+[tool.pytest.ini_options]
+addopts = "--strict-markers --strict-config -ra"
+asyncio_mode = "auto"
+markers = [
+    "unit: Unit tests that test individual components in isolation",
+]
+```
+
+**Test Categories**:
+1. **Path Validation Tests** (5 tests)
+   - `tests/tools/obsidian_folder_manager/test_service.py::TestPathValidation`
+
+2. **Archive Operation Tests** (10 tests)
+   - `tests/tools/obsidian_folder_manager/test_service.py::TestArchiveFolderOperation`
+
+3. **Schema Validation Tests** (5 tests)
+   - `tests/tools/obsidian_folder_manager/test_schemas.py::TestSchemaValidation`
+
+4. **Error Handling Tests** (8 tests)
+   - `tests/tools/obsidian_folder_manager/test_error_handling.py::TestErrorHandling`
+
+5. **Wikilink Update Tests** (6 tests)
+   - `tests/tools/obsidian_folder_manager/test_wikilink_updates.py::TestWikilinkUpdates`
+
+**Validates**:
+- [ ] All unit tests pass
+- [ ] 0 failures
+- [ ] 0 errors
+- [ ] 0 skipped tests (unless intentionally skipped with reason)
+- [ ] Test duration reasonable (<30 seconds total)
+
+**Success Criteria**:
+- **MUST**: All 30+ unit tests pass
+- **Performance**: Test suite <30 seconds
+- **Isolation**: Each test independent (can run in any order)
+
+---
+
+#### Validation 1.3.2: Test Coverage Analysis
+**Tool**: pytest-cov
+**Command**:
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/ \
+    --cov=src/tools/obsidian_folder_manager/ \
+    --cov-report=term-missing \
+    --cov-report=html \
+    --cov-report=json \
+    --cov-fail-under=90
+```
+
+**Validates**:
+- [ ] Overall coverage >90%
+- [ ] `service.py` coverage >90%
+- [ ] `tool.py` coverage >80% (tool registration has limited testability)
+- [ ] `schemas.py` coverage >90%
+- [ ] No critical code paths untested
+
+**Success Criteria**:
+- **MUST**: Overall >90% coverage
+- **MUST**: service.py >90%
+- **Critical Paths**: 100% coverage on error handling, security validation, wikilink updates
+
+**Output Formats**:
+- **Terminal**: Summary with missing lines
+- **HTML**: `htmlcov/index.html` - Visual report
+- **JSON**: `coverage.json` - Machine-readable for CI/CD
+
+**Coverage Review Checklist**:
+- [ ] All `validate_folder_path()` branches covered
+- [ ] All `_archive_folder()` branches covered
+- [ ] Error handling paths covered
+- [ ] Edge cases covered (empty folders, special characters, etc.)
+
+---
+
+#### Validation 1.3.3: Test Quality Checks
+**Tool**: Pytest with custom checks
+**Command**:
+```bash
+# Check for test smells
+uv run pytest tests/tools/obsidian_folder_manager/ --collect-only | grep "test_"
+
+# Verify test naming conventions
+find tests/tools/obsidian_folder_manager/ -name "test_*.py" | xargs grep -L "class Test"
+```
+
+**Validates**:
+- [ ] All test functions start with `test_`
+- [ ] All test classes start with `Test`
+- [ ] All test files start with `test_`
+- [ ] Test docstrings present and descriptive
+- [ ] Tests use proper fixtures (tmp_path, etc.)
+- [ ] No test interdependencies
+- [ ] No hardcoded paths or data
+
+**Success Criteria**: All tests follow conventions
+
+---
+
+### 1.4 Integration Tests
+
+**Purpose**: Test multiple components working together.
+
+#### Validation 1.4.1: Run All Integration Tests
+**Tool**: Pytest
+**Command**:
+```bash
+uv run pytest tests/integration/ -v -m integration
+```
+
+**Test Categories**:
+1. **Tool Integration** (4 tests)
+   - Tool-to-service integration
+   - Response format validation
+   - Parameter passing
+
+2. **System Prompt Integration** (2 tests)
+   - Decision tree presence
+   - Prompt formatting
+
+3. **Cross-Component Integration** (4 tests)
+   - Vault security integration
+   - Obsidian parsers integration
+   - Logging integration
+   - Config integration
+
+**Validates**:
+- [ ] All integration tests pass
+- [ ] Components interact correctly
+- [ ] Data flows properly between layers
+- [ ] No integration bugs
+
+**Success Criteria**: All 10 integration tests pass
+
+---
+
+#### Validation 1.4.2: End-to-End Workflow Tests
+**Tool**: Pytest
+**Command**:
+```bash
+uv run pytest tests/e2e/ -v
+```
+
+**Test Scenarios**:
+1. **Complete Archive Workflow** (1 test)
+   - User request → tool selection → execution → result
+
+2. **Error Recovery Workflow** (1 test)
+   - Wrong tool → error → self-correction
+
+**Validates**:
+- [ ] Full workflows complete successfully
+- [ ] User experience smooth
+- [ ] Error recovery works
+
+**Success Criteria**: Both E2E tests pass
+
+---
+
+### 1.5 Security Tests
+
+**Purpose**: Ensure security vulnerabilities are prevented.
+
+#### Validation 1.5.1: Security Unit Tests
+**Tool**: Pytest with security focus
+**Command**:
+```bash
+uv run pytest tests/security/ -v
+```
+
+**File**: `tests/security/test_folder_security.py` (new file)
+
+**Test Categories**:
+
+**1. Path Traversal Prevention** (2 tests)
+```python
+async def test_directory_traversal_blocked():
+    """Test that directory traversal attacks are prevented."""
+    attack_paths = [
+        "../../../etc/passwd",
+        "..\\..\\..\\windows\\system32",
+        "projects/../../sensitive",
+        "folder/../../../etc",
+    ]
+
+    for path in attack_paths:
+        request = ManageFolderRequest(path=path, operation=FolderOperation.CREATE)
+        with pytest.raises(ValueError, match="invalid path"):
+            await manage_folder_service(request, vault_path="/vault")
+
+async def test_absolute_path_rejected():
+    """Test that absolute paths are rejected."""
+    absolute_paths = [
+        "/etc/passwd",
+        "C:\\Windows\\System32",
+        "/home/user/.ssh",
+    ]
+
+    for path in absolute_paths:
+        request = ManageFolderRequest(path=path, operation=FolderOperation.CREATE)
+        with pytest.raises(ValueError, match="must be relative"):
+            await manage_folder_service(request, vault_path="/vault")
+```
+
+**2. Sensitive Folder Protection** (1 test)
+```python
+async def test_sensitive_folders_protected():
+    """Test that sensitive folders are protected from operations."""
+    protected = [".obsidian", ".git", ".trash", ".DS_Store"]
+
+    for folder in protected:
+        request = ManageFolderRequest(path=folder, operation=FolderOperation.DELETE)
+        with pytest.raises(ValueError, match="protected"):
+            await manage_folder_service(request, vault_path="/vault")
+```
+
+**3. Code Injection Prevention** (1 test)
+```python
+async def test_no_code_injection():
+    """Test that folder names cannot inject code."""
+    malicious_names = [
+        "folder; rm -rf /",
+        "folder && cat /etc/passwd",
+        "folder$(malicious command)",
+        "folder' OR '1'='1",
+        "folder`whoami`",
+    ]
+
+    for name in malicious_names:
+        # Should treat as literal string, not execute
+        # May create folder or reject based on validation
+        # But MUST NOT execute commands
+        request = ManageFolderRequest(path=name, operation=FolderOperation.CREATE)
+        # Either succeeds with sanitized name or rejects, but never executes
+        try:
+            result = await manage_folder_service(request, vault_path="/tmp/test-vault")
+            # If succeeds, verify name is literal
+            assert name not in result.message  # Original not in message
+        except ValueError:
+            # Acceptable to reject
+            pass
+```
+
+**4. Symlink Security** (1 test)
+```python
+async def test_symlink_escape_prevented():
+    """Test that symlinks cannot escape vault."""
+    vault = tmp_path / "vault"
+    vault.mkdir()
+
+    # Create symlink pointing outside vault
+    (vault / "external").symlink_to("/tmp")
+
+    request = ManageFolderRequest(path="external", operation=FolderOperation.ARCHIVE)
+
+    # Should detect and handle symlink appropriately
+    # Either resolve safely or reject
+    # MUST NOT allow escape from vault
+    with pytest.raises(ValueError, match="symlink|invalid"):
+        await manage_folder_service(request, vault_path=str(vault))
+```
+
+**5. No Sensitive Data in Logs** (1 test)
+```python
+async def test_no_sensitive_data_in_logs(caplog):
+    """Test that logs don't contain sensitive data."""
+    sensitive_data = {
+        "api_key": "sk-abc123",
+        "password": "secret123",
+        "token": "bearer xyz",
+    }
+
+    # Run operation with potential sensitive data
+    request = ManageFolderRequest(path="test-folder", operation=FolderOperation.CREATE)
+    await manage_folder_service(request, vault_path="/tmp/vault")
+
+    # Check logs don't contain sensitive patterns
+    log_output = caplog.text.lower()
+    assert "api_key" not in log_output or "sk-" not in log_output
+    assert "password" not in log_output or "secret" not in log_output
+    assert "token" not in log_output or "bearer" not in log_output
+```
+
+**Validates**:
+- [ ] Directory traversal blocked
+- [ ] Absolute paths rejected
+- [ ] Sensitive folders protected
+- [ ] Code injection prevented
+- [ ] Symlink escapes prevented
+- [ ] No sensitive data logged
+
+**Success Criteria**: All 6 security tests pass
+
+---
+
+#### Validation 1.5.2: Static Security Analysis
+**Tool**: Bandit (if available)
+**Command**:
+```bash
+uv run bandit -r src/tools/obsidian_folder_manager/ -ll
+```
+
+**Validates**:
+- [ ] No hardcoded passwords
+- [ ] No insecure temp file usage
+- [ ] No shell injection vulnerabilities
+- [ ] No pickle usage (arbitrary code execution)
+- [ ] No weak cryptography (if any crypto used)
+
+**Success Criteria**: 0 medium/high severity issues
+
+---
+
+### 1.6 Pre-Deployment Validation Summary
+
+**Complete Pre-Deployment Checklist**:
+
+#### Phase 1: Dependencies ✓
+- [ ] 1.1.1: Dependency installation check (uv sync)
+- [ ] 1.1.2: Dependency version verification
+- [ ] 1.1.3: Security audit (safety/pip-audit)
+- [ ] 1.1.4: Import verification
+
+#### Phase 2: Code Quality ✓
+- [ ] 1.2.1: Ruff linting (0 errors)
+- [ ] 1.2.2: Ruff formatting check
+- [ ] 1.2.3: MyPy type checking strict mode (0 errors)
+- [ ] 1.2.4: Type coverage >99%
+
+#### Phase 3: Unit Tests ✓
+- [ ] 1.3.1: All 30+ unit tests pass
+- [ ] 1.3.2: Test coverage >90%
+- [ ] 1.3.3: Test quality checks pass
+
+#### Phase 4: Integration Tests ✓
+- [ ] 1.4.1: All 10 integration tests pass
+- [ ] 1.4.2: Both E2E tests pass
+
+#### Phase 5: Security ✓
+- [ ] 1.5.1: All 6 security tests pass
+- [ ] 1.5.2: Static security analysis clean
+
+**Total Automated Checks**: 20+ validation steps
+**Total Tests**: 48+ tests (30 unit + 10 integration + 2 E2E + 6 security)
+
+**CI/CD Integration**:
+```yaml
+# .github/workflows/pre-deployment.yml
+name: Pre-Deployment Validation
+
+on: [push, pull_request]
+
+jobs:
+  pre-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: 1.1 Dependency Validation
+        run: |
+          uv sync --frozen
+          uv pip list
+
+      - name: 1.2 Linting and Type Checking
+        run: |
+          uv run ruff check src/tools/obsidian_folder_manager/
+          uv run ruff format --check src/tools/obsidian_folder_manager/
+          uv run mypy src/tools/obsidian_folder_manager/ --strict
+
+      - name: 1.3 Unit Tests
+        run: |
+          uv run pytest tests/tools/obsidian_folder_manager/ -v -m unit \
+            --cov=src/tools/obsidian_folder_manager/ \
+            --cov-report=term-missing \
+            --cov-fail-under=90
+
+      - name: 1.4 Integration Tests
+        run: |
+          uv run pytest tests/integration/ -v -m integration
+          uv run pytest tests/e2e/ -v
+
+      - name: 1.5 Security Tests
+        run: |
+          uv run pytest tests/security/ -v
+```
+
+---
+
+## 2. Unit Testing Strategy
 
 ### 1.1 Path Validation Tests (5 tests)
 
