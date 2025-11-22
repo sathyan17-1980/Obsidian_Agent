@@ -26,9 +26,13 @@ This document provides a comprehensive testing and validation strategy for the f
 [Static Analysis & Linting]                 Continuous
 ```
 
-**Total Test Count**: 42+ automated tests
-**Manual Validation Scenarios**: 8 scenarios
-**Quality Gates**: 10 gates
+**Complete Test Suite Overview**: See **FULL-TEST-SUITE-OVERVIEW.md** for comprehensive breakdown of all 169 tests
+- 157 automated tests (unit, integration, E2E, evaluation, platform, performance, security, regression)
+- 12 manual tests (UAT, staging verification, production verification, weekly check-ins)
+- All test categories, counts, and execution timeline
+
+**This Document Focuses On**: Pre-deployment validation (Section 1) and detailed test specifications (Sections 2-9)
+
 **Target Coverage**: >90% on service layer
 
 ---
@@ -629,6 +633,8 @@ uv run bandit -r src/tools/obsidian_folder_manager/ -ll
 
 **Total Automated Checks**: 20+ validation steps
 **Total Tests**: 48+ tests (30 unit + 10 integration + 2 E2E + 6 security)
+
+> **Note**: This section covers PRE-DEPLOYMENT validation only. For complete test suite including deployment, post-deployment, evaluation, platform, performance, and regression tests (169 total tests), see **FULL-TEST-SUITE-OVERVIEW.md**.
 
 **CI/CD Integration**:
 ```yaml
