@@ -687,6 +687,8 @@ def validate_folder_path(path: str) -> None:
 
 ## 7. Validation Strategy
 
+**📋 Detailed Testing Strategy**: See `TESTING-AND-VALIDATION-STRATEGY.md` for comprehensive testing plan with 135+ tests
+
 ### Test Pyramid
 
 ```
@@ -694,19 +696,43 @@ def validate_folder_path(path: str) -> None:
        /         \           - Full agent workflow with archive
       /           \          - Multi-step operation with tool selection
      /             \
-[Integration Tests]         8 tests
+[Integration Tests]         10 tests
    /               \        - Archive with wikilink updates
   /                 \       - Cross-platform path handling
  /                   \      - Tool selection decision tree
-/                     \
-[Unit Tests]               25+ tests
- - Path validation (3)
- - Archive operation (7)
+/                     \     - System prompt integration
+[Unit Tests]               30+ tests
+ - Path validation (5)
+ - Archive operation (10)
  - Schema validation (5)
- - Error handling (10+)
+ - Error handling (8)
+ - Wikilink updates (6)
+
+[Evaluation Tests]         50 tests
+ - Obvious folder ops (10)
+ - Obvious note ops (10)
+ - Ambiguous cases (10)
+ - Edge cases (10)
+ - Mixed operations (10)
+
+[Platform Tests]           9 tests
+ - Path normalization
+ - Unicode support
+ - Case-only renames
+ - Windows reserved names
+
+[Performance Tests]        6 benchmarks
+ - Archive operations
+ - Wikilink updates
+ - Path validation
+
+[Security Tests]           6 tests
+ - Directory traversal
+ - Path injection
+ - Sensitive folders
 ```
 
-**Total Expected**: 35+ tests
+**Total Expected**: 135+ automated tests + 3 manual EUATs
 
 ---
 
@@ -1142,7 +1168,8 @@ Tool selection guide:
 1. **CLAUDE.md**: Global development rules and standards
 2. **IMPLEMENTATION-PLAN-TEMPLATE.md**: Template used to create this plan
 3. **PLANNING-IMPROVEMENTS.md**: Analysis of what makes a good plan
-4. **coding-agent.md**: Original implementation plan (superseded by this document)
+4. **TESTING-AND-VALIDATION-STRATEGY.md**: Comprehensive testing and validation plan (135+ tests)
+5. **coding-agent.md**: Original implementation plan (superseded by this document)
 
 ---
 
