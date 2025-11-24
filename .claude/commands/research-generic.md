@@ -263,6 +263,104 @@ Based on the `format` parameter, generate appropriate output:
 [Curated learning path]
 ```
 
+---
+
+### Personal Branding Mode (Optional Enhancement)
+
+**When to use:** If you're creating content for personal brand building (educational content, thought leadership, teaching).
+
+**Applicable formats:** Guide, Q&A, Summary (when publishing)
+
+**How to enable:** Add `--branding` flag to command, or manually enhance output with these requirements.
+
+**Required Elements for Personal Branding:**
+
+1. **Personal Framing (Opening)** - Establish credibility
+   - "My friends/colleagues have often asked me about {topic}..."
+   - "After working with {topic}, I'm frequently asked..."
+   - Shows people seek YOU for knowledge
+
+2. **Educational Series Context** - Position as guide
+   - "This is part of my weekly AI series..."
+   - "Building on last week's post on {previous topic}..."
+   - You're leading a learning journey
+
+3. **Concrete Examples with Quotes** - Show depth
+   - Specific technical examples: "king" - "man" + "woman" = "queen"
+   - Authority quotes: "As Cloudflare puts it, '{exact quote}'"
+   - Code snippets, mathematical illustrations
+   - Proves deep understanding, not surface knowledge
+
+4. **"Why This Matters for YOU" Section** - Practical value
+   - Explicit section addressing reader's goals
+   - Connect to outcomes: "This means you can build..."
+   - Expert positioning: "difference between copying code and architecting solutions"
+
+5. **Actionable Resources** - Enable learning
+   - Specific named resources: "Google's ML Crash Course"
+   - Free courses with exact names and links
+   - Tools and platforms to try
+   - Not generic: "there are courses" ❌ | "Google's ML Crash Course offers..." ✅
+
+6. **Expert Positioning Language**
+   - "Understanding this is the difference between {novice} and {expert}"
+   - "Real practitioners know that..."
+   - "What separates beginners from architects is..."
+
+7. **Series Continuity** - Build engagement
+   - End with: "In next week's post, I'll explain {next topic}..."
+   - Create anticipation for ongoing readership
+   - Show learning progression
+
+**Enhanced Guide Format with Personal Branding:**
+
+```markdown
+# Why Every {Audience} Should Master {Topic}: A Practitioner's Guide
+
+## My Journey with {Topic}
+[Personal framing: "Colleagues have asked me..." + Series context]
+
+## What Is {Topic}? (The Fundamentals)
+[Definition with concrete example]
+[Authority quote: "As {Source} puts it, '{exact quote}'"]
+[Technical illustration or code example]
+
+## Why This Matters for You
+[Explicit section on practical value]
+[3-5 concrete use cases with specifics]
+[Expert positioning: "difference between copying and architecting"]
+
+## How {Topic} Works (Technical Breakdown)
+[Step-by-step with technical details]
+[Common misconceptions addressed]
+
+## Getting Started: Your Learning Path
+[Specific named resources:]
+- "{Exact Course Name} offers hands-on tutorials"
+- "{Specific Documentation} provides excellent guide"
+- "Try {Specific Tool/Platform} for practice"
+
+## Key Takeaways
+- [Specific, actionable points, NOT generic]
+- [With concrete examples and outcomes]
+
+## What's Next in This Series
+["In next week's article, I'll explore {next topic}..."]
+
+## Additional Reading
+- [{Resource 1}]({URL}) - {Description}
+- [{Resource 2}]({URL}) - {Description}
+```
+
+**Anti-Patterns to Avoid:**
+- ❌ Generic educational tone without personal framing
+- ❌ High-level vague statements without concrete examples
+- ❌ No authority quotes or specific sources
+- ❌ Missing "why this matters" practical value
+- ❌ Generic "there are resources" instead of specific named courses
+- ❌ No expert positioning language
+- ❌ Standalone content with no series continuity
+
 **Quality Requirements:**
 - Match requested technical level
 - Target word count (±20%)
