@@ -12,6 +12,194 @@ Run the research consolidator:
 /research-topic "Why should AI enthusiasts learn about embeddings"
 ```
 
+---
+
+## Command Examples Reference
+
+**Note:** `/research-topic` ALWAYS generates LinkedIn posts AND blog articles (multiple drafts). It's specifically designed for content publishing with personal branding.
+
+### Basic Usage (Fast - Default)
+
+```bash
+# Standard research: 3 LinkedIn drafts + 3 blog drafts (2-4 min total)
+/research-topic "Why AI enthusiasts should learn embeddings"
+
+# Quick research with 1 draft each (fastest option)
+/research-topic "Transformer architecture basics" --depth light --drafts 1
+
+# Comprehensive research with 5 draft variations
+/research-topic "Constitutional AI vs RLHF" --depth deep --drafts 5
+
+# Minimal depth for testing (fastest)
+/research-topic "Neural networks explained" --depth minimal --drafts 1
+```
+
+### With Deep Research Flag (Iterative Exploration)
+
+```bash
+# Deep iterative research for complex topic (8-20 min total)
+/research-topic "How do attention mechanisms differ across transformer variants" --deep-research
+
+# Deep research with extensive depth + multiple drafts (high quality)
+/research-topic "Multimodal AI in 2024" --deep-research --depth extensive --drafts 5
+
+# Deep research with minimal drafts (faster content generation)
+/research-topic "Vector database comparison" --deep-research --depth deep --drafts 1
+
+# Maximum quality: deep research + extensive depth + 5 drafts
+/research-topic "Constitutional AI safety mechanisms" \
+  --deep-research \
+  --depth extensive \
+  --drafts 5
+```
+
+### By Depth Level
+
+```bash
+# Minimal: Quick content (~60s research + 2 min generation, $0.14 total)
+/research-topic "What are embeddings" --depth minimal --drafts 1
+
+# Light: Basic content (~90s research + 2-3 min generation, $0.14 total)
+/research-topic "Transformer basics" --depth light --drafts 2
+
+# Moderate: Standard content (~120s research + 3-4 min generation, $0.18 total) - DEFAULT
+/research-topic "Why learn embeddings"
+
+# Deep: High-quality content (~180s research + 4-5 min generation, $0.20 total)
+/research-topic "RAG architecture explained" --depth deep
+
+# Extensive: Premium content (~240s research + 5-6 min generation, $0.22+ total)
+/research-topic "Constitutional AI mechanisms" --depth extensive --drafts 5
+```
+
+### By Draft Variations
+
+```bash
+# 1 draft each (fastest content generation)
+/research-topic "Neural networks" --drafts 1
+
+# 2 drafts each (quick variety)
+/research-topic "Vector databases" --drafts 2
+
+# 3 drafts each (balanced) - DEFAULT
+/research-topic "Why learn embeddings"
+
+# 4 drafts each (more options)
+/research-topic "Attention mechanisms" --drafts 4
+
+# 5 drafts each (maximum variety)
+/research-topic "Constitutional AI" --drafts 5
+```
+
+### Complete Real-World Examples
+
+```bash
+# Fast content generation for weekly post (default - 3-4 min)
+/research-topic "Why learn embeddings"
+
+# High-quality content with deep research (8-12 min)
+/research-topic "RAG architecture explained" --deep-research --depth deep
+
+# Premium content for important topic (15-25 min)
+/research-topic "Constitutional AI safety mechanisms" \
+  --deep-research \
+  --depth extensive \
+  --drafts 5
+
+# Quick test with minimal settings (2-3 min)
+/research-topic "Neural networks basics" --depth minimal --drafts 1
+
+# Comprehensive comparison article (10-15 min)
+/research-topic "RAG vs Fine-tuning for domain adaptation" \
+  --deep-research \
+  --depth deep \
+  --drafts 3
+```
+
+### Time & Cost Breakdown
+
+| Command | Research Time | Content Gen | Total Time | Cost | Output |
+|---------|---------------|-------------|------------|------|--------|
+| `--depth minimal --drafts 1` | ~60s | ~2 min | ~3 min | ~$0.14 | 1 LinkedIn + 1 Blog |
+| `--depth moderate` (default) | ~120s | ~3-4 min | ~4-6 min | ~$0.18 | 3 LinkedIn + 3 Blog |
+| `--depth deep --drafts 5` | ~180s | ~5-6 min | ~7-9 min | ~$0.22 | 5 LinkedIn + 5 Blog |
+| `--deep-research` (default depth) | 5-10 min | ~3-4 min | ~8-14 min | ~$0.30 | 3 LinkedIn + 3 Blog |
+| `--deep-research --extensive --drafts 5` | 10-15 min | ~5-6 min | ~15-21 min | ~$0.40 | 5 LinkedIn + 5 Blog |
+
+### When to Use Which Options
+
+**Use `--depth minimal --drafts 1` when:**
+- Testing the command
+- Quick weekly posts
+- Simple, well-known topics
+- Time is critical
+
+**Use default settings when:**
+- Standard LinkedIn/blog content
+- Balanced quality and speed needed
+- Most weekly content needs
+
+**Use `--depth deep --drafts 3-5` when:**
+- Important topics for your brand
+- Want multiple draft options
+- Quality > speed
+
+**Use `--deep-research` when:**
+- Complex, nuanced topics
+- Contradictory information exists
+- Cutting-edge research needed
+- High-stakes thought leadership content
+- Need to follow multiple research threads
+
+**Use `--deep-research --extensive --drafts 5` when:**
+- Cornerstone content for your brand
+- Major announcement or analysis
+- Want maximum quality and options
+- Have 15-25 minutes available
+
+### Comparison: `/research-topic` vs `/research-generic`
+
+| Feature | `/research-topic` | `/research-generic` |
+|---------|------------------|-------------------|
+| **Primary Purpose** | LinkedIn & Blog content generation | Research with flexible output formats |
+| **Default Output** | ALWAYS generates LinkedIn + Blog | Research only (no LinkedIn/blog) |
+| **Content Flags** | Not needed (always generates both) | Optional (`--linkedin`, `--blog`, `--branding`) |
+| **Output Formats** | LinkedIn + Blog (multiple drafts) | summary, report, qa, comparison, guide |
+| **Draft Variations** | 1-5 drafts (default: 3) | N/A (single output per format) |
+| **Personal Branding** | Always applied (built-in) | Optional via `--branding` flag |
+| **Default Time** | 3-4 min | 2 min |
+| **Best For** | Content publishing, multiple drafts | Research-only, flexible formats, optional content |
+
+### When to Use `/research-topic` (This Command)
+
+✅ **Use this command when:**
+- You're creating LinkedIn posts and blog articles
+- You want multiple draft variations to choose from (1-5 drafts)
+- You want personal branding framework applied automatically
+- You're building thought leadership content
+- You need platform-optimized content (LinkedIn + Blog)
+
+❌ **Don't use this when:**
+- You only want research output without content (use `/research-generic` instead)
+- You need specific formats like comparison or Q&A (use `/research-generic` instead)
+- You don't want content generation at all
+
+### When to Use `/research-generic` (Alternative Command)
+
+✅ **Use that command when:**
+- You want research output only (no content generation by default)
+- You need specific formats: comparison, Q&A, technical report
+- You want optional LinkedIn/blog generation (not mandatory)
+- You prefer objective, informative content without personal branding
+- You need flexibility in output structure
+
+❌ **Don't use that when:**
+- You specifically want LinkedIn posts and blog articles with personal branding
+- You want multiple draft variations to choose from
+- You're building thought leadership content (use this command instead)
+
+---
+
 ## What This Agent Does
 
 The AI Research Agent is a sophisticated multi-source research and content generation system that:

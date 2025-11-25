@@ -12,6 +12,166 @@
 
 ---
 
+## Command Examples Reference
+
+### Basic Usage (Fast - Default)
+
+```bash
+# Simple research, default settings (2 min)
+/research-generic "what are embeddings"
+
+# Specify output format
+/research-generic "transformer architecture" --format summary
+
+# Technical report for advanced users
+/research-generic "RLHF in language models" --format report --depth deep
+
+# Comparison analysis
+/research-generic "RAG vs fine-tuning" --format comparison --depth moderate
+
+# Beginner's guide
+/research-generic "neural networks basics" --format guide
+```
+
+### With Deep Research Flag (Iterative Exploration)
+
+```bash
+# Deep iterative research (5-15 min)
+/research-generic "how do attention mechanisms differ across transformer variants" --deep-research
+
+# Deep research with specific format
+/research-generic "RAG vs fine-tuning" --deep-research --format comparison --depth extensive
+
+# Deep research for cutting-edge topics
+/research-generic "constitutional AI safety mechanisms" --deep-research --depth deep --format report
+```
+
+### With Content Generation Flags
+
+```bash
+# Research + LinkedIn post (no personal branding)
+/research-generic "vector databases explained" --format guide --linkedin
+
+# Research + Blog article (no personal branding)
+/research-generic "why learn embeddings" --format guide --blog
+
+# Research + LinkedIn + Blog with personal branding
+/research-generic "constitutional AI safety" --linkedin --blog --branding
+
+# Deep research + full content generation
+/research-generic "multimodal AI advances" --deep-research --linkedin --blog --branding --depth deep
+```
+
+### Complete Examples with All Options
+
+```bash
+# Quick fact-check (minimal depth)
+/research-generic "what is the capital of France" --depth minimal --format summary
+
+# Standard research with LinkedIn
+/research-generic "neural networks basics" --format guide --linkedin
+
+# Deep comprehensive research with all content (8-20 min)
+/research-generic "attention mechanisms in transformers" \
+  --deep-research \
+  --depth extensive \
+  --format report \
+  --linkedin \
+  --blog \
+  --branding
+```
+
+### By Output Format
+
+```bash
+# Summary format (default - key findings)
+/research-generic "embeddings in ML" --format summary
+
+# Technical report (formal structure)
+/research-generic "RLHF explained" --format report --depth deep
+
+# Q&A document (question-answer style)
+/research-generic "what are vector databases" --format qa
+
+# Comparison (side-by-side analysis)
+/research-generic "RAG vs fine-tuning" --format comparison
+
+# Beginner's guide (ELI5 style)
+/research-generic "neural networks" --format guide
+```
+
+### By Depth Level
+
+```bash
+# Minimal: Quick fact-check (~60s, $0.10)
+/research-generic "what is Python" --depth minimal
+
+# Light: Basic research (~90s, $0.12)
+/research-generic "transformer basics" --depth light
+
+# Moderate: Standard research (~120s, $0.15) - DEFAULT
+/research-generic "embeddings explained" --depth moderate
+
+# Deep: Comprehensive (~180s, $0.18)
+/research-generic "RAG architecture" --depth deep
+
+# Extensive: Multi-topic dive (~240s, $0.20+)
+/research-generic "multimodal AI in 2024" --depth extensive
+```
+
+### Time & Cost Comparison
+
+| Command | Time | Cost | Best For |
+|---------|------|------|----------|
+| `--depth minimal` | ~60s | ~$0.10 | Quick facts, testing |
+| `--depth moderate` (default) | ~120s | ~$0.15 | Standard research |
+| `--depth deep` | ~180s | ~$0.18 | Complex topics |
+| `--deep-research` | 5-15 min | ~$0.30 | Iterative exploration |
+| `--deep-research --linkedin --blog` | 8-20 min | ~$0.40 | Full content publishing |
+
+### Comparison: `/research-generic` vs `/research-topic`
+
+| Feature | `/research-generic` | `/research-topic` |
+|---------|-------------------|------------------|
+| **Primary Purpose** | Research with flexible output formats | LinkedIn & Blog content generation |
+| **Default Output** | Research only (no LinkedIn/blog) | ALWAYS generates LinkedIn + Blog |
+| **Content Flags** | Optional (`--linkedin`, `--blog`, `--branding`) | Not needed (always generates both) |
+| **Output Formats** | summary, report, qa, comparison, guide | LinkedIn + Blog (multiple drafts) |
+| **Draft Variations** | N/A (single output per format) | 1-5 drafts (default: 3) |
+| **Personal Branding** | Optional via `--branding` flag | Always applied (built-in) |
+| **Default Time** | 2 min | 3-4 min |
+| **Best For** | Research-only, flexible formats, optional content | Content publishing, multiple drafts |
+
+### When to Use `/research-generic`
+
+✅ **Use this command when:**
+- You want research output only (no content generation)
+- You need specific formats: comparison, Q&A, technical report
+- You want optional LinkedIn/blog generation (not mandatory)
+- You prefer objective, informative content without personal branding
+- You need flexibility in output structure
+
+❌ **Don't use this when:**
+- You specifically want LinkedIn posts and blog articles with personal branding
+- You want multiple draft variations to choose from
+- You're building thought leadership content (use `/research-topic` instead)
+
+### When to Use `/research-topic`
+
+✅ **Use this command when:**
+- You're creating LinkedIn posts and blog articles
+- You want multiple draft variations to choose from (1-5 drafts)
+- You want personal branding framework applied automatically
+- You're building thought leadership content
+- You need platform-optimized content (LinkedIn + Blog)
+
+❌ **Don't use this when:**
+- You only want research output (use `/research-generic` instead)
+- You need specific formats like comparison or Q&A (use `/research-generic` instead)
+- You don't want content generation at all
+
+---
+
 ## What This Agent Does
 
 The Generic Research Consolidator is a versatile multi-source research system that:
