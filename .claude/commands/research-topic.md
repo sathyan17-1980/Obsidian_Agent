@@ -1,6 +1,6 @@
 ---
 description: Multi-source research agent for LinkedIn & Blog content generation
-argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--drafts 1-5]"
+argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--drafts 1-5] [--deep-research]"
 ---
 
 # Research Topic - LinkedIn & Blog Content Generator
@@ -41,11 +41,36 @@ Extract:
   - Default: 3 (Technical, Story-Driven, Balanced)
   - More drafts = more variety, but higher cost
 
+- **--deep-research**: Enable iterative, multi-round research exploration - OPTIONAL
+  - **When ABSENT (default)**: Use 6-source parallel approach (fast, predictable)
+    - Execution time: 60-240 seconds (based on depth level)
+    - Queries all 6 sources in parallel: HN, Web, Articles, Obsidian, Drive, YouTube
+    - Structured, predictable output
+    - Best for: Most LinkedIn/blog content needs, known topics
+
+  - **When PRESENT**: Use Task tool with specialized research agent (thorough, adaptive)
+    - Execution time: 5-15 minutes
+    - Iterative exploration: Follows interesting threads, refines questions
+    - Dynamic source selection: Chooses sources based on discoveries
+    - Multi-hop reasoning: "To understand X, first need Y"
+    - Better conflict resolution through deeper investigation
+    - Best for: Complex topics, contradictory information, cutting-edge research, high-stakes content
+
+  - **Tradeoff**: Speed vs. thoroughness - use `--deep-research` when content quality > time constraints
+
 Example valid inputs:
 ```
+# Fast research for LinkedIn/blog (default - 2-4 min total)
 /research-topic "Why AI enthusiasts should learn embeddings"
+
+# Light research with single draft (fastest)
 /research-topic "Transformer architecture basics" --depth light --drafts 1
-/research-topic "Constitutional AI vs RLHF" --depth deep --drafts 5
+
+# Deep research with multiple drafts (thorough)
+/research-topic "Constitutional AI vs RLHF" --deep-research --depth deep --drafts 5
+
+# Iterative deep research for complex topic (5-15 min research + generation)
+/research-topic "How do attention mechanisms differ across transformer variants" --deep-research --depth extensive
 ```
 
 ### Step 2: Verify Prerequisites and Configuration
@@ -80,7 +105,62 @@ Check required configuration before starting research:
    - Verify required packages installed (newspaper3k, youtube-transcript-api, etc.)
    - If missing: Provide installation command
 
-### Step 3: Execute Multi-Source Research (Parallel)
+### Step 3: Execute Multi-Source Research
+
+**First, check if `--deep-research` flag is present in $ARGUMENTS:**
+
+#### Option A: Deep Research Mode (if --deep-research flag present)
+
+If `--deep-research` flag is detected, use the Task tool to launch a specialized research agent for iterative exploration:
+
+**Approach:**
+- Use Task tool with subagent_type="Explore" or subagent_type="general-purpose"
+- Agent performs multi-round research with dynamic source selection
+- Follows interesting threads discovered during initial research
+- Refines questions based on findings
+- Deep dives into contradictions and gaps
+- Synthesizes comprehensive understanding optimized for LinkedIn/blog content
+
+**Agent Prompt Template:**
+```
+Research the following topic comprehensively for LinkedIn and blog content generation using iterative exploration:
+
+**Topic**: {topic}
+**Depth Target**: {depth level}
+**Content Type**: LinkedIn posts + Blog articles
+**Drafts Needed**: {drafts count}
+
+Use the following approach:
+1. Initial broad search across multiple sources (web, documentation, papers, HN discussions)
+2. Identify key subtopics, concrete examples, and authoritative quotes
+3. Follow interesting threads with focused follow-up searches
+4. Resolve contradictions by consulting authoritative sources
+5. Gather concrete examples, technical details, benchmarks, and quotes
+6. Find specific resources (named courses, tools, documentation)
+7. Collect real-world applications with company examples and data
+8. Synthesize findings optimized for LinkedIn/blog content generation
+
+Quality requirements (55-point framework):
+- Concrete examples (not vague statements)
+- Detailed explanations with technical depth
+- All claims must have citations with authority quotes
+- Include specific versions, numbers, algorithms
+- Real-world applications with company names and impact data
+- Specific named resources (courses, tools, documentation)
+- Expert positioning language and practical value statements
+
+Return comprehensive research findings ready for LinkedIn post and blog article generation with personal branding framework.
+```
+
+**Expected outcome**: Agent returns detailed research findings after 5-15 minutes of iterative exploration, optimized for high-quality content generation.
+
+**Skip to Step 4** after receiving agent results.
+
+---
+
+#### Option B: Fast Parallel Research (default - if --deep-research flag absent)
+
+If `--deep-research` flag is NOT present, use the standard 6-source parallel approach:
 
 Research the topic across 6 sources in parallel. Execute ALL sources concurrently for maximum speed.
 

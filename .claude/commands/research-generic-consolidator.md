@@ -490,7 +490,13 @@ research_generic(
     depth: str = "moderate",           # minimal, light, moderate, deep, extensive
     format: str = "summary",           # summary, report, qa, comparison, guide
     max_sources: int = 30,             # Maximum sources to aggregate
-    obsidian_vault_path: str = None    # Path to Obsidian vault (REQUIRED)
+    obsidian_vault_path: str = None,   # Path to Obsidian vault (REQUIRED)
+
+    # NEW: Optional flags
+    deep_research: bool = False,       # Enable iterative multi-round research (5-15 min)
+    linkedin: bool = False,            # Generate LinkedIn post (150-300 words)
+    blog: bool = False,                # Generate blog article (800-1500 words)
+    branding: bool = False             # Apply personal branding (requires linkedin/blog)
 )
 ```
 
@@ -736,6 +742,58 @@ Authority Scores:
 **Time:** ~4 minutes
 **Cost:** ~$0.22
 **Output:** Academic-style literature review
+
+---
+
+### 6. Deep Iterative Research (NEW)
+
+```bash
+# Deep research mode for complex topic
+/research-generic "How do attention mechanisms differ across transformer variants" \
+  --deep-research \
+  --depth deep \
+  --format report
+```
+
+**Time:** ~5-15 minutes (iterative exploration)
+**Cost:** ~$0.25-0.40 (depends on iterations)
+**Output:** Comprehensive research with multi-hop reasoning and better conflict resolution
+**Best for:** Complex topics, contradictory information, cutting-edge research
+
+---
+
+### 7. Research + LinkedIn Content (NEW)
+
+```bash
+# Research with LinkedIn post generation
+/research-generic "Why learn embeddings" \
+  --format guide \
+  --linkedin
+```
+
+**Time:** ~2-3 minutes
+**Cost:** ~$0.16
+**Output:** Research guide + informative LinkedIn post (150-300 words)
+
+---
+
+### 8. Research + LinkedIn + Blog with Personal Branding (NEW)
+
+```bash
+# Deep research with full content generation and personal branding
+/research-generic "Vector databases explained" \
+  --deep-research \
+  --depth deep \
+  --format guide \
+  --linkedin \
+  --blog \
+  --branding
+```
+
+**Time:** ~8-20 minutes
+**Cost:** ~$0.35-0.50
+**Output:** Deep research + LinkedIn post + blog article (both with personal branding framework)
+**Best for:** High-quality content publishing with comprehensive research
 
 ---
 

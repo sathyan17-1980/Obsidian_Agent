@@ -1,6 +1,6 @@
 ---
 description: Multi-source research agent for any topic with flexible output formats
-argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--format summary|report|qa|comparison|guide] [--linkedin] [--blog] [--branding]"
+argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--format summary|report|qa|comparison|guide] [--deep-research] [--linkedin] [--blog] [--branding]"
 ---
 
 # Generic Research Consolidator
@@ -47,6 +47,25 @@ Extract:
   - 2000: Comprehensive deep dive
   - 3000+: Research paper style
 
+**NEW: Research Mode Flag:**
+
+- **--deep-research**: Enable iterative, multi-round research exploration - OPTIONAL
+  - **When ABSENT (default)**: Use 6-source parallel approach (fast, predictable)
+    - Execution time: 60-240 seconds (based on depth level)
+    - Queries all 6 sources in parallel: HN, Web, Articles, Obsidian, Drive, YouTube
+    - Structured, predictable output
+    - Best for: Most research needs, time-sensitive work, known topics
+
+  - **When PRESENT**: Use Task tool with specialized research agent (thorough, adaptive)
+    - Execution time: 5-15 minutes
+    - Iterative exploration: Follows interesting threads, refines questions
+    - Dynamic source selection: Chooses sources based on discoveries
+    - Multi-hop reasoning: "To understand X, first need Y"
+    - Better conflict resolution through deeper investigation
+    - Best for: Complex topics, contradictory information, cutting-edge research, comprehensive analysis
+
+  - **Tradeoff**: Speed vs. thoroughness - use `--deep-research` when quality > speed
+
 **NEW: Optional Content Generation Flags:**
 
 - **--linkedin**: Generate LinkedIn post (150-300 words) - OPTIONAL
@@ -67,14 +86,17 @@ Extract:
 
 **Example Commands:**
 ```bash
-# Just research, no content
+# Just research, no content (fast - default)
 /research-generic "transformer architecture" --format summary
+
+# Deep research for complex topic (5-15 min)
+/research-generic "how do attention mechanisms differ across transformer variants" --deep-research --format report
 
 # Research + LinkedIn (no personal branding)
 /research-generic "transformer architecture" --format report --linkedin
 
-# Research + LinkedIn + Blog with personal branding
-/research-generic "why learn embeddings" --format guide --linkedin --blog --branding
+# Deep research + LinkedIn + Blog with personal branding
+/research-generic "why learn embeddings" --deep-research --format guide --linkedin --blog --branding
 
 # Research + Blog only
 /research-generic "vector databases comparison" --format comparison --blog
@@ -87,7 +109,58 @@ Check if OBSIDIAN_VAULT_PATH is configured:
 - If not set, prompt user for vault path
 - **CRITICAL**: Obsidian vault integration is MANDATORY
 
-### Step 3: Execute Multi-Source Research (Parallel)
+### Step 3: Execute Multi-Source Research
+
+**First, check if `--deep-research` flag is present in $ARGUMENTS:**
+
+#### Option A: Deep Research Mode (if --deep-research flag present)
+
+If `--deep-research` flag is detected, use the Task tool to launch a specialized research agent for iterative exploration:
+
+**Approach:**
+- Use Task tool with subagent_type="Explore" or subagent_type="general-purpose"
+- Agent performs multi-round research with dynamic source selection
+- Follows interesting threads discovered during initial research
+- Refines questions based on findings
+- Deep dives into contradictions and gaps
+- Synthesizes comprehensive understanding
+
+**Agent Prompt Template:**
+```
+Research the following topic comprehensively using iterative exploration:
+
+**Topic**: {topic}
+**Depth Target**: {depth level}
+**Format Needed**: {format}
+**Technical Level**: {technical_level}
+
+Use the following approach:
+1. Initial broad search across multiple sources (web, documentation, papers)
+2. Identify key subtopics and knowledge gaps
+3. Follow interesting threads with focused follow-up searches
+4. Resolve contradictions by consulting authoritative sources
+5. Gather concrete examples, technical details, benchmarks, and quotes
+6. Synthesize findings into structured output matching {format}
+
+Quality requirements:
+- Concrete examples (not vague statements)
+- Detailed explanations with technical depth
+- All claims must have citations
+- Include specific versions, numbers, algorithms
+- Authority quotes from primary sources
+
+Return comprehensive research findings ready for {format} output generation.
+```
+
+**Expected outcome**: Agent returns detailed research findings after 5-15 minutes of iterative exploration.
+
+**Skip to Step 4** after receiving agent results.
+
+---
+
+#### Option B: Fast Parallel Research (default - if --deep-research flag absent)
+
+If `--deep-research` flag is NOT present, use the standard 6-source parallel approach:
 
 Research the topic across 6 sources in parallel:
 

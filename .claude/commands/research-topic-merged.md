@@ -247,7 +247,7 @@ OBSIDIAN VAULT STORAGE (Mandatory)
 ### Basic Usage
 
 ```bash
-# Standard research (moderate depth, 3 drafts)
+# Standard research (moderate depth, 3 drafts) - DEFAULT
 /research-topic "Why AI enthusiasts should learn embeddings"
 
 # Quick research (minimal depth, 1 draft)
@@ -255,6 +255,9 @@ OBSIDIAN VAULT STORAGE (Mandatory)
 
 # Deep research (comprehensive, 5 draft variations)
 /research-topic "Constitutional AI vs RLHF" --depth deep --drafts 5
+
+# Deep iterative research mode (NEW - 5-15 min research)
+/research-topic "How do attention mechanisms differ across transformer variants" --deep-research --depth extensive
 ```
 
 ### Research Depth Levels
@@ -266,6 +269,17 @@ OBSIDIAN VAULT STORAGE (Mandatory)
 | **moderate** (DEFAULT) | 5-8 | ~120s | ~$0.18 | Standard research |
 | **deep** | 8-12 | ~180s | ~$0.20 | Complex topics |
 | **extensive** | 12+ | ~240s | ~$0.22+ | Multi-topic deep dive |
+
+**NEW: Deep Research Mode**
+
+Add `--deep-research` flag for iterative, multi-round research exploration:
+
+- **Standard mode (default)**: 6-source parallel approach shown above
+- **Deep research mode**: Iterative exploration with Task tool
+  - Time: 5-15 minutes (adaptive based on complexity)
+  - Cost: ~$0.25-0.40 (depends on iterations)
+  - Use when: Complex topics, contradictory information, cutting-edge research, high-stakes content
+  - Tradeoff: Slower but more thorough with better conflict resolution
 
 ## Obsidian Vault Structure
 
