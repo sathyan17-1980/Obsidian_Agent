@@ -1,6 +1,6 @@
 ---
 description: Multi-source research agent for any topic with flexible output formats
-argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--format summary|report|qa|comparison|guide]"
+argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--format summary|report|qa|comparison|guide] [--linkedin] [--blog] [--branding]"
 ---
 
 # Generic Research Consolidator
@@ -46,6 +46,39 @@ Extract:
   - 1000: Balanced detail (default)
   - 2000: Comprehensive deep dive
   - 3000+: Research paper style
+
+**NEW: Optional Content Generation Flags:**
+
+- **--linkedin**: Generate LinkedIn post (150-300 words) - OPTIONAL
+  - Only include if user wants shareable LinkedIn content
+  - When present: Generate informative LinkedIn post after research
+  - When absent: Skip LinkedIn generation
+
+- **--blog**: Generate blog article (800-1500 words) - OPTIONAL
+  - Only include if user wants blog content
+  - When present: Generate comprehensive blog article after research
+  - When absent: Skip blog generation
+
+- **--branding**: Apply personal branding framework - OPTIONAL
+  - Only relevant when --linkedin or --blog is present
+  - When present: Apply personal voice, series continuity, expert positioning
+  - When absent: Generate objective, informative content without personal voice
+  - NOTE: Requires --linkedin or --blog to have any effect
+
+**Example Commands:**
+```bash
+# Just research, no content
+/research-generic "transformer architecture" --format summary
+
+# Research + LinkedIn (no personal branding)
+/research-generic "transformer architecture" --format report --linkedin
+
+# Research + LinkedIn + Blog with personal branding
+/research-generic "why learn embeddings" --format guide --linkedin --blog --branding
+
+# Research + Blog only
+/research-generic "vector databases comparison" --format comparison --blog
+```
 
 ### Step 2: Verify Obsidian Vault Configuration
 
@@ -265,6 +298,64 @@ Based on the `format` parameter, generate appropriate output:
 
 ---
 
+### Quality Standards for Research Output
+
+Apply these quality standards to ALL research outputs (regardless of format or flags):
+
+**1. Concrete vs. Vague Examples:**
+
+Always provide specific, concrete examples rather than vague generalizations.
+
+- ❌ **Vague**: "Embeddings are important for AI applications"
+- ✅ **Concrete**: "'king' - 'man' + 'woman' = 'queen' in embedding space illustrates how semantic relationships are captured mathematically"
+
+- ❌ **Vague**: "Vector databases are fast"
+- ✅ **Concrete**: "HNSW algorithm achieves 10ms query latency at 95% recall for 1M 1536-dimensional vectors"
+
+- ❌ **Vague**: "This technology is widely used"
+- ✅ **Concrete**: "Netflix uses embeddings to power recommendations for 230M+ subscribers, processing 2 billion daily events"
+
+**2. High-level vs. Detailed Explanations:**
+
+Provide detailed explanations with technical depth, not just high-level overviews.
+
+- ❌ **High-level**: "Vector databases store embeddings efficiently"
+- ✅ **Detailed**: "As Cloudflare puts it, 'embeddings make it possible for computers to understand the relationships between words' - they transform real-world data into mathematical representations that preserve semantic meaning"
+
+- ❌ **High-level**: "Transformers use attention mechanisms"
+- ✅ **Detailed**: "The self-attention mechanism computes attention scores via Q·K^T/√d_k, allowing each token to attend to all other tokens in parallel, unlike RNNs which process sequentially"
+
+- ❌ **High-level**: "RAG improves LLM accuracy"
+- ✅ **Detailed**: "RAG (Retrieval-Augmented Generation) reduces hallucinations by grounding responses in retrieved context - Meta's Atlas model showed 8% accuracy improvement on open-domain QA by retrieving from 64M Wikipedia passages"
+
+**3. Citation Requirements:**
+
+- ALL factual claims must have citations
+- Include specific quotes from authoritative sources when possible
+- Format: "As [Source] puts it, '[exact quote]'" or [Fact (Source, Year)]
+- Prefer primary sources over secondary (.edu, arxiv, official documentation)
+- Include publication dates when available
+
+**4. Technical Details:**
+
+Include specific technical details rather than generic descriptions:
+
+- Specific versions: "Python 3.11+, PyTorch 2.0, CUDA 11.8"
+- Concrete numbers: "1536-dimensional vectors", "10ms latency", "95% recall"
+- Named algorithms: "HNSW (Hierarchical Navigable Small World)", "cosine similarity", "k-NN search"
+- Exact terminology: "semantic search", "embedding space", "vector similarity"
+
+**Apply these standards to:**
+- Research summaries
+- Technical reports
+- Q&A documents
+- Comparison analyses
+- Beginner's guides
+
+**Do NOT apply personal branding elements** (see Personal Branding Mode below) **unless --linkedin or --blog flags are present with --branding flag**.
+
+---
+
 ### Personal Branding Mode (Optional Enhancement)
 
 **When to use:** If you're creating content for personal brand building (educational content, thought leadership, teaching).
@@ -368,7 +459,284 @@ Based on the `format` parameter, generate appropriate output:
 - No hallucinations (only source-backed info)
 - Proper markdown formatting
 
-### Step 6: Save to Obsidian Vault
+---
+
+### Step 6: Optional LinkedIn Post Generation (Conditional)
+
+**ONLY execute this step if `--linkedin` flag is present in $ARGUMENTS**
+
+If `--linkedin` flag is detected, generate a LinkedIn post (150-300 words) based on the research findings.
+
+#### Check for Branding Flag
+
+- If `--branding` flag is ALSO present: Apply personal branding framework (7 elements from Personal Branding Mode section)
+- If `--branding` flag is NOT present: Generate informative, objective LinkedIn post without personal voice
+
+#### LinkedIn Post Structure (WITHOUT --branding)
+
+```markdown
+# {Topic}: Key Insights
+
+## The Challenge
+[Brief problem statement or context - 2-3 sentences]
+
+## What the Research Shows
+[3-5 key findings from research, with specific examples]
+- Finding 1 (with concrete example)
+- Finding 2 (with data/quote)
+- Finding 3 (with technical detail)
+
+## Why This Matters
+[Practical implications - 2-3 sentences]
+
+## Key Takeaway
+[One memorable insight or actionable point]
+
+---
+**Word count:** 150-300 words
+**Hashtags:** #{relevant} #{technology} #{topics}
+**Sources:** [Top 3 sources cited]
+```
+
+#### LinkedIn Post Structure (WITH --branding)
+
+When `--branding` flag is present, apply all 7 personal branding elements:
+
+```markdown
+# Why Every {Audience} Should Understand {Topic}
+
+## Personal Framing
+"My colleagues have frequently asked me about {topic}, so I'm sharing key insights from my research..."
+[Establish credibility - people seek YOU for knowledge]
+
+## The Hook
+{Concrete question or surprising fact from research}
+"Did you know that {specific concrete example}?"
+
+## The Core Insight
+[Authority quote]: "As {Source} puts it, '{exact quote}'"
+[Concrete example]: {Specific technical detail or code example}
+[Why it matters]: "This means you can {practical outcome}..."
+
+## Expert Positioning
+"Understanding this is the difference between {copying code} and {architecting solutions}."
+"What separates beginners from practitioners is {specific knowledge}..."
+
+## Actionable Resources
+Based on my research, here are specific resources:
+- {Exact Course/Resource Name} offers {specific benefit}
+- {Specific Documentation} provides {concrete value}
+
+## Series Continuity
+"This is part of my weekly series on {topic}. In next week's post, I'll explore {next topic}..."
+
+## Key Takeaways
+- {Specific, actionable point with concrete example}
+- {Another specific point with data}
+- {Third point with technical detail}
+
+---
+**Word count:** 200-300 words
+**Hashtags:** #{relevant} #{technology} #{topics}
+**Additional Reading:** [Links to top sources]
+```
+
+#### LinkedIn Post Quality Checklist
+
+- ✅ 150-300 word count
+- ✅ Concrete examples (not vague statements)
+- ✅ At least 1 specific quote or data point
+- ✅ Technical details (versions, numbers, algorithms)
+- ✅ Practical value clearly stated
+- ✅ Proper markdown formatting
+- ✅ Sources cited (minimum 2-3)
+- ✅ If --branding: All 7 personal branding elements present
+- ✅ If no --branding: Objective, informative tone
+
+#### Save LinkedIn Post
+
+Create file: `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/linkedin/linkedin-post.md`
+
+---
+
+### Step 7: Optional Blog Article Generation (Conditional)
+
+**ONLY execute this step if `--blog` flag is present in $ARGUMENTS**
+
+If `--blog` flag is detected, generate a comprehensive blog article (800-1500 words) based on the research findings.
+
+#### Check for Branding Flag
+
+- If `--branding` flag is ALSO present: Apply personal branding framework
+- If `--branding` flag is NOT present: Generate informative, objective blog article without personal voice
+
+#### Blog Article Structure (WITHOUT --branding)
+
+```markdown
+# {Topic}: A Comprehensive Analysis
+
+## Introduction
+[Context and importance - 100-150 words]
+- What is this topic?
+- Why does it matter?
+- What will this article cover?
+
+## Background and Context
+[Technical background - 150-200 words]
+- Historical context or evolution
+- Key concepts and definitions
+- Current state of the field
+
+## Core Concepts
+[Main content organized in 3-5 sections - 400-600 words total]
+
+### {Concept 1}
+[Detailed explanation with concrete examples]
+[Technical details and specifications]
+[Citations and quotes from authoritative sources]
+
+### {Concept 2}
+[Detailed explanation with concrete examples]
+[Data points and benchmarks]
+[Real-world applications]
+
+### {Concept 3}
+[Detailed explanation with concrete examples]
+[Code examples or technical illustrations]
+[Performance characteristics]
+
+## Practical Applications
+[Real-world use cases - 150-200 words]
+- Application 1 (with specific company/product example)
+- Application 2 (with data on impact/scale)
+- Application 3 (with technical implementation details)
+
+## Challenges and Considerations
+[Limitations and trade-offs - 100-150 words]
+- Challenge 1 (with concrete example)
+- Challenge 2 (with mitigation strategies)
+
+## Conclusion
+[Summary and key takeaways - 100-150 words]
+- Main points recap
+- Future outlook
+- Actionable next steps
+
+## Further Reading
+[Curated sources - 5-10 high-quality references]
+- [{Resource Name}]({URL}) - {Description}
+- [{Course/Tutorial}]({URL}) - {Description}
+
+---
+**Word count:** 800-1500 words
+**Reading time:** 4-7 minutes
+**Technical level:** {as specified in arguments}
+```
+
+#### Blog Article Structure (WITH --branding)
+
+When `--branding` flag is present, use enhanced structure with personal elements:
+
+```markdown
+# Why Every {Audience} Should Master {Topic}: A Practitioner's Guide
+
+## My Journey with {Topic}
+[Personal framing - 100 words]
+"Colleagues have often asked me to explain {topic}..."
+"This is part of my weekly series on {broader theme}..."
+[Establish credibility and series context]
+
+## What Is {Topic}? (The Fundamentals)
+[Definition with concrete example - 200 words]
+[Authority quote]: "As {Source} puts it, '{exact quote}'"
+[Technical illustration or code example]
+[Concrete example like 'king - man + woman = queen']
+
+## Why This Matters for You
+[Explicit practical value section - 200 words]
+"Understanding {topic} is the difference between {copying code} and {architecting solutions}."
+
+**Real-world impact:**
+- {Specific use case with company example}
+- {Concrete outcome with data}
+- {Technical capability with specific detail}
+
+## How {Topic} Works (Technical Breakdown)
+[3-4 detailed sections - 400-500 words total]
+
+### {Technical Aspect 1}
+[Step-by-step explanation]
+[Concrete examples with code/math]
+[Common misconceptions addressed]
+
+### {Technical Aspect 2}
+[Detailed technical content]
+[Specific algorithms, versions, benchmarks]
+[Authority quotes and citations]
+
+### {Technical Aspect 3}
+[Advanced concepts]
+[Real-world performance data]
+[Implementation considerations]
+
+## Getting Started: Your Learning Path
+[Specific named resources - 150 words]
+NOT generic: "there are courses" ❌
+SPECIFIC: "Google's ML Crash Course offers..." ✅
+
+**Free Resources:**
+- "{Exact Course Name}" offers hands-on tutorials on {specific topics}
+- "{Specific Documentation}" provides excellent guide to {specific aspect}
+- "Try {Specific Tool/Platform}" for practice with {specific feature}
+
+**Books and Papers:**
+- [{Specific Book}]({link}) - {Why it's valuable}
+- [{Specific Paper}]({arxiv link}) - {Key contribution}
+
+## Key Takeaways
+[5-7 specific, actionable points - 150 words]
+- ✅ {Specific point with concrete example}
+- ✅ {Technical detail with data}
+- ✅ {Actionable recommendation with specific tool/approach}
+
+## What's Next in This Series
+["In next week's article, I'll explore {next topic}, covering {specific aspects}..."]
+[Create anticipation and continuity]
+
+## Additional Reading
+[All research sources with descriptions]
+- [{Resource 1}]({URL}) - {What you'll learn}
+- [{Resource 2}]({URL}) - {Key insights}
+
+---
+**Word count:** 1000-1500 words
+**Reading time:** 5-8 minutes
+**Series:** {Series name if applicable}
+```
+
+#### Blog Article Quality Checklist
+
+- ✅ 800-1500 word count
+- ✅ Concrete examples throughout (not vague statements)
+- ✅ At least 3-5 authoritative quotes
+- ✅ Technical details (specific versions, numbers, algorithms)
+- ✅ Code examples or mathematical illustrations where relevant
+- ✅ Real-world applications with specific companies/products
+- ✅ Practical value explicitly stated
+- ✅ Proper markdown formatting with headers
+- ✅ 5-10 high-quality sources cited
+- ✅ If --branding: All 7 personal branding elements present
+- ✅ If no --branding: Objective, educational tone
+- ✅ Beginner-friendly if technical_level=beginner
+- ✅ Advanced technical content if technical_level=expert
+
+#### Save Blog Article
+
+Create file: `{OBSIDIAN_VAULT_PATH}/research/{date}-{slug}/blog/blog-article.md`
+
+---
+
+### Step 8: Save to Obsidian Vault
 
 Create organized folder structure:
 
@@ -379,8 +747,14 @@ Create organized folder structure:
 ├── sources.md                 # All citations and references
 ├── conflicts.md               # Detected conflicts (if any)
 ├── metadata.json              # Research metadata and stats
-└── {topic-slug}_research.pdf  # Comprehensive PDF with research output
+├── {topic-slug}_research.pdf  # Comprehensive PDF with research output
+├── linkedin/                  # OPTIONAL: Only if --linkedin flag present
+│   └── linkedin-post.md       # Generated LinkedIn post (150-300 words)
+└── blog/                      # OPTIONAL: Only if --blog flag present
+    └── blog-article.md        # Generated blog article (800-1500 words)
 ```
+
+**Note:** `linkedin/` and `blog/` folders are created ONLY if their respective flags are present.
 
 **Files to create:**
 
@@ -648,17 +1022,36 @@ This command produces research that can be used as input for:
 ## Validation
 
 Before marking complete, verify:
+
+**Research Quality:**
 - ✅ All 6 research sources were queried
 - ✅ Output matches requested format
 - ✅ Word count within ±20% of target
 - ✅ All citations are valid and accessible
 - ✅ Conflicts detected and resolved (or flagged)
-- ✅ Files saved to Obsidian vault
-- ✅ Proper markdown formatting
 - ✅ Technical level matches request
 - ✅ No hallucinations (all info source-backed)
+- ✅ Quality standards applied:
+  - ✅ Concrete examples (not vague statements)
+  - ✅ Detailed explanations (not high-level only)
+  - ✅ Technical details included (versions, numbers, algorithms)
+  - ✅ All claims have citations
+
+**File Management:**
+- ✅ Files saved to Obsidian vault
+- ✅ Proper markdown formatting
 - ✅ PDF file created and readable
 - ✅ PDF committed and pushed to git repository
+
+**Optional Content (if flags present):**
+- ✅ If --linkedin: LinkedIn post generated (150-300 words)
+  - ✅ If --branding: Personal branding elements present
+  - ✅ If no --branding: Objective, informative tone
+  - ✅ Saved to linkedin/linkedin-post.md
+- ✅ If --blog: Blog article generated (800-1500 words)
+  - ✅ If --branding: Personal branding elements present
+  - ✅ If no --branding: Objective, educational tone
+  - ✅ Saved to blog/blog-article.md
 
 ---
 
