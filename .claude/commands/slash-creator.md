@@ -380,21 +380,23 @@ Extract:
 ## File Naming Conventions
 
 ### Documentation Files
-- Descriptive names: `slash-creator.md`, `research-generic-consolidator.md`
+- Suffix: `-documentation.md`
+- Examples: `research-generic-documentation.md`, `research-topic-documentation.md`
 - Located in: `.claude/commands/`
-- Purpose: Explain features, architecture, use cases
+- Purpose: Explain features, architecture, use cases, command examples
 
 ### Slash Command Files
-- Action-oriented names: `create-slash-command.md`, `research-generic.md`
+- Suffix: `-command.md`
+- Examples: `research-generic-command.md`, `research-topic-command.md`
 - Located in: `.claude/commands/` or `.claude/commands/core_commands/`
 - Purpose: Executable instructions for agents
 
 ### Relationship
 ```
-documentation.md          →  executable-command.md
-research-topic-merged.md  →  (slash command embedded in doc)
+documentation.md          →  command.md
+research-topic-documentation.md  →  research-topic-command.md
+research-generic-documentation.md  →  research-generic-command.md
 slash-creator.md          →  create-slash-command.md
-ai-research-agent.md      →  research-topic.md (if separate)
 ```
 
 ---

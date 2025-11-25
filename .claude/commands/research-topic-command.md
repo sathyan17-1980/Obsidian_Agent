@@ -1814,8 +1814,8 @@ You can now download the PDF from your repository or find it in the locations ab
 
 ## References
 
-- **Full Documentation**: `.claude/commands/research-topic-merged.md`
-- **Generic Research Command**: `.claude/commands/research-generic.md` (for non-content research)
+- **Full Documentation**: `.claude/commands/research-topic-documentation.md`
+- **Generic Research Command**: `.claude/commands/research-generic-command.md` (for non-content research)
 - **Brave API Config**: `docs/brave-api-configuration.md`
 - **Coding Standards**: `CLAUDE.md`
 - **Voice Profile Setup**: `scripts/create_voice_profile.py`

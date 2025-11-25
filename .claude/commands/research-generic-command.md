@@ -1130,7 +1130,7 @@ Before marking complete, verify:
 
 ## References
 
-- **Full Documentation**: `.claude/commands/research-generic-consolidator.md`
-- **Specialized Version**: `.claude/commands/research-topic-merged.md` (for LinkedIn/Blog)
+- **Full Documentation**: `.claude/commands/research-generic-documentation.md`
+- **Specialized Version**: `.claude/commands/research-topic-documentation.md` (for LinkedIn/Blog)
 - **Brave API Config**: `docs/brave-api-configuration.md`
 - **Coding Standards**: `CLAUDE.md`

@@ -1195,7 +1195,7 @@ research_generic(
 
 ---
 
-## Differences from research-topic-merged.md
+## Differences from research-topic-documentation.md
 
 | Feature | Generic Consolidator | LinkedIn/Blog Consolidator |
 |---------|---------------------|---------------------------|
@@ -1233,7 +1233,7 @@ research_generic(
 
 ## References
 
-- **Specialized Version:** `.claude/commands/research-topic-merged.md`
+- **Specialized Version:** `.claude/commands/research-topic-documentation.md`
 - **Brave API Config:** `docs/brave-api-configuration.md`
 - **Coding Standards:** `CLAUDE.md`
 
