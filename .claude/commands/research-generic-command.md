@@ -379,27 +379,27 @@ Apply these quality standards to ALL research outputs (regardless of format or f
 
 Always provide specific, concrete examples rather than vague generalizations.
 
-- ❌ **Vague**: "Embeddings are important for AI applications"
-- ✅ **Concrete**: "'king' - 'man' + 'woman' = 'queen' in embedding space illustrates how semantic relationships are captured mathematically"
-
 - ❌ **Vague**: "Vector databases are fast"
-- ✅ **Concrete**: "HNSW algorithm achieves 10ms query latency at 95% recall for 1M 1536-dimensional vectors"
+- ✅ **Concrete**: "searching through 10 million document embeddings takes just 80 milliseconds. This is due to algorithms like HNSW (Hierarchical Navigable Small World)"
 
-- ❌ **Vague**: "This technology is widely used"
-- ✅ **Concrete**: "Netflix uses embeddings to power recommendations for 230M+ subscribers, processing 2 billion daily events"
+- ❌ **Vague**: "Embeddings have many dimensions"
+- ✅ **Concrete**: "1536 dimensions has become the industry standard—especially with OpenAI's text-embedding-ada-002 model. While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision, and some lightweight models use just 384 dimensions for speed-critical applications"
+
+- ❌ **Vague**: "Vector databases help with AI applications"
+- ✅ **Concrete**: "Vector databases is one of the reasons Retrieval-Augmented Generation (RAG) do not hallucinate, grounding LLM responses in actual data. This is one of the reasons we are able to build Smart assistants that remember context, able to understand meaning"
 
 **2. High-level vs. Detailed Explanations:**
 
 Provide detailed explanations with technical depth, not just high-level overviews.
 
-- ❌ **High-level**: "Vector databases store embeddings efficiently"
-- ✅ **Detailed**: "As Cloudflare puts it, 'embeddings make it possible for computers to understand the relationships between words' - they transform real-world data into mathematical representations that preserve semantic meaning"
+- ❌ **High-level**: "Vector databases store embeddings in multiple dimensions"
+- ✅ **Detailed**: "The word 'king' is represented as a single vector with 1536 dimensions. Each dimension captures different abstract patterns—potentially gender associations, formality, historical context, royalty, and hundreds of other nuanced features. For eg. the 1st dimension could store 'How masculine vs feminine?', the second dimension could store 'How formal is this?' and so on for each of the 1536 dimensions"
 
-- ❌ **High-level**: "Transformers use attention mechanisms"
-- ✅ **Detailed**: "The self-attention mechanism computes attention scores via Q·K^T/√d_k, allowing each token to attend to all other tokens in parallel, unlike RNNs which process sequentially"
+- ❌ **High-level**: "Dimension choice affects performance"
+- ✅ **Detailed**: "The dimension being chosen is a trade-off between accuracy, speed, and cost. While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision, and some lightweight models use just 384 dimensions for speed-critical applications"
 
-- ❌ **High-level**: "RAG improves LLM accuracy"
-- ✅ **Detailed**: "RAG (Retrieval-Augmented Generation) reduces hallucinations by grounding responses in retrieved context - Meta's Atlas model showed 8% accuracy improvement on open-domain QA by retrieving from 64M Wikipedia passages"
+- ❌ **High-level**: "Vector databases enable fast search"
+- ✅ **Detailed**: "When you search, the search query is converted into a vector with the same 1536 dimensions. The vector database then calculates which stored vectors are closest in this dimensional space using similarity measures and returns the most relevant matches. The speed is amazing: searching through 10 million document embeddings takes just 80 milliseconds"
 
 **3. Citation Requirements:**
 
