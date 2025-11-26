@@ -298,6 +298,55 @@ GIT COMMIT & PUSH
 
 ---
 
+## Quality Standards for Research Output
+
+Apply these quality standards to ALL research outputs (regardless of format or flags):
+
+### Concrete vs. Vague Examples
+
+Always provide specific, concrete examples rather than vague generalizations.
+
+- ❌ **Vague**: "Vector databases are fast"
+- ✅ **Concrete**: "searching through 10 million document embeddings takes just 80 milliseconds. This is due to algorithms like HNSW (Hierarchical Navigable Small World)"
+
+- ❌ **Vague**: "Embeddings have many dimensions"
+- ✅ **Concrete**: "1536 dimensions has become the industry standard—especially with OpenAI's text-embedding-ada-002 model. While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision, and some lightweight models use just 384 dimensions for speed-critical applications"
+
+- ❌ **Vague**: "Vector databases help with AI applications"
+- ✅ **Concrete**: "Vector databases is one of the reasons Retrieval-Augmented Generation (RAG) do not hallucinate, grounding LLM responses in actual data. This is one of the reasons we are able to build Smart assistants that remember context, able to understand meaning"
+
+### High-level vs. Detailed Explanations
+
+Provide detailed explanations with technical depth, not just high-level overviews.
+
+- ❌ **High-level**: "Vector databases store embeddings in multiple dimensions"
+- ✅ **Detailed**: "The word 'king' is represented as a single vector with 1536 dimensions. Each dimension captures different abstract patterns—potentially gender associations, formality, historical context, royalty, and hundreds of other nuanced features. For eg. the 1st dimension could store 'How masculine vs feminine?', the second dimension could store 'How formal is this?' and so on for each of the 1536 dimensions"
+
+- ❌ **High-level**: "Dimension choice affects performance"
+- ✅ **Detailed**: "The dimension being chosen is a trade-off between accuracy, speed, and cost. While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision, and some lightweight models use just 384 dimensions for speed-critical applications"
+
+- ❌ **High-level**: "Vector databases enable fast search"
+- ✅ **Detailed**: "When you search, the search query is converted into a vector with the same 1536 dimensions. The vector database then calculates which stored vectors are closest in this dimensional space using similarity measures and returns the most relevant matches. The speed is amazing: searching through 10 million document embeddings takes just 80 milliseconds"
+
+### Citation Requirements
+
+- ALL factual claims must have citations
+- Include specific quotes from authoritative sources when possible
+- Format: "As [Source] puts it, '[exact quote]'" or [Fact (Source, Year)]
+- Prefer primary sources over secondary (.edu, arxiv, official documentation)
+- Include publication dates when available
+
+### Technical Details
+
+Include specific technical details rather than generic descriptions:
+
+- Specific versions: "Python 3.11+, PyTorch 2.0, CUDA 11.8"
+- Concrete numbers: "1536-dimensional vectors", "10ms latency", "95% recall"
+- Named algorithms: "HNSW (Hierarchical Navigable Small World)", "cosine similarity", "k-NN search"
+- Exact terminology: "semantic search", "embedding space", "vector similarity"
+
+---
+
 ## Usage Examples
 
 ### Basic Research (Default Output)
