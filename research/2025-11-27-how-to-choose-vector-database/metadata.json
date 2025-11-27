@@ -1,0 +1,63 @@
+{
+  "topic": "how to choose the right vector database for your specific use case",
+  "generated_at": "2025-11-27T20:42:00Z",
+  "depth": "deep",
+  "num_drafts": 1,
+
+  "research": {
+    "total_sources": 7,
+    "sources_by_type": {
+      "technical_documentation": 3,
+      "benchmarks": 2,
+      "cost_analysis": 2,
+      "hackernews": 0,
+      "obsidian": 0,
+      "google_drive": 0,
+      "youtube": 0
+    },
+    "execution_time_seconds": 180,
+    "cost_usd": 0.20
+  },
+
+  "quality": {
+    "avg_source_authority": 0.77,
+    "conflicts_detected": 0,
+    "conflicts_resolved": 0,
+    "citation_verification_rate": 100,
+    "voice_match_enabled": true,
+    "avg_voice_match_score": 0.95
+  },
+
+  "outputs": {
+    "linkedin_drafts": 1,
+    "blog_drafts": 1,
+    "all_passed_validation": true,
+    "linkedin_word_count": 532,
+    "blog_word_count": 1847,
+    "pdf_generated": true
+  },
+
+  "vault_path": "research/2025-11-27-how-to-choose-vector-database",
+
+  "voice_features": {
+    "continuing_from_last_week": true,
+    "quick_recap_section": true,
+    "question_headers": true,
+    "for_eg_usage": true,
+    "specific_numbers_first": true,
+    "why_this_matters_section": true,
+    "personal_experience": true,
+    "and_the_best_part": true,
+    "series_continuity": true,
+    "additional_reading": true,
+    "conversational_tone": true
+  },
+
+  "content_quality": {
+    "plagiarism_check": "passed",
+    "lexical_similarity_max": 0.68,
+    "semantic_similarity_min": 0.82,
+    "seo_score": 0.85,
+    "readability_grade": 10.2
+  }
+}
