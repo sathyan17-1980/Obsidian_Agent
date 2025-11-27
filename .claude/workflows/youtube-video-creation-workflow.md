@@ -57,17 +57,21 @@ Complete workflow for creating production-ready YouTube videos for 2-4 year olds
 ##### **2b. Animation Direction (per scene)**
 - **Camera movement**: Pan, zoom, dolly, static
 - **Character animation**: What actions/movements occur
-- **Duration**: How long each scene should be (typically 15-30 seconds)
+- **Duration**: MINIMUM 25-45 seconds per scene (see Pacing & Timing section for specifics)
+  - **CRITICAL**: Specify "MINIMUM [X] seconds" in animation tool to prevent compression
+  - Add direction: "slow pacing", "hold shots longer", "let action play out fully"
 - **Transition to next scene**: Fade, cut, dissolve, wipe
 
 ##### **2c. Dialogue Generation (Tamil + English)**
-- Generate dialogue for each scene in BOTH languages
+- Generate dialogue for **EVERY scene** in BOTH languages
+- **CRITICAL**: No silent scenes - every scene must have dialogue or narration
 - Requirements:
   - **Age-appropriate**: Simple vocabulary for 2-4 yr olds
   - **Natural flow**: Conversational, not preachy
   - **Emotional tone**: Match scene mood (excited, sad, thoughtful)
   - **Length**: Keep dialogue short (1-2 sentences per scene max)
   - **Tamil quality**: User will rewrite Tamil for authenticity
+  - **Visual-heavy scenes**: Add narrator commentary or sound effect descriptions
 
 ##### **2d. Voice Direction**
 - **Character voices**: Specify voice type (child, elderly, energetic, calm)
@@ -119,8 +123,10 @@ For each scene, provide:
    - **Alternative**: Runway Gen-3 Turbo, Luma Dream Machine
    - **Camera movement**: Specify pan, zoom, dolly, static
    - **Character action**: What the character does
-   - **Duration**: 10-30 seconds per scene
-   - **Director controls**: "pan down", "dolly zoom", "slow zoom in"
+   - **Duration**: MINIMUM 25-45 seconds per scene (see guidelines below)
+   - **CRITICAL**: Always include "MINIMUM [X] seconds duration" in prompt
+   - **Pacing controls**: "slow pacing", "hold shots longer", "static camera"
+   - **Director controls**: "pan down slowly", "gentle dolly zoom", "slow zoom in"
 
 3. **Transition to Next Scene**:
    - Type: Cut, fade, dissolve, wipe
@@ -151,13 +157,15 @@ For each scene, provide:
 
 #### **3c. Pacing & Timing**
 
-**Total Video Duration**: 2-5 minutes (optimal for 2-4 yr olds)
+**Total Video Duration**: 3-4 minutes (optimal for 2-4 yr olds)
 
-**Scene Duration Guidelines**:
-- **Opening scene**: 20-30 seconds (establish character/setting)
-- **Middle scenes**: 15-25 seconds each (story progression)
-- **Climax scene**: 30-40 seconds (key learning moment)
-- **Resolution scene**: 20-30 seconds (moral reinforcement)
+**Scene Duration Guidelines** (UPDATED based on production testing):
+- **Opening scene**: 40-45 seconds (establish character/setting, allow time for setup)
+- **Middle scenes**: 25-35 seconds each (story progression with breathing room)
+- **Climax scene**: 35-40 seconds (key learning moment, emotional peak)
+- **Resolution scene**: 30-35 seconds (moral reinforcement, closure)
+
+**Target for 8-scene drama**: 40 + (25×4) + 35 + 30 = ~205-240 seconds (3.5-4 minutes)
 
 **Dialogue Pacing**:
 - Pause 1-2 seconds after dialogue before next scene
@@ -207,6 +215,41 @@ For each scene, specify:
 - **Background music**: Fade in/out points
 - **Sound effects**: Where to add (door open, bird chirp, footsteps)
 - **Silence**: Where to pause for visual impact
+
+---
+
+#### **4d. English Captions Generation (NEW)**
+
+**Tool**: Generate SRT subtitle file for YouTube upload
+
+**Format**: SRT (SubRip Subtitle) - recommended for direct YouTube upload
+
+For each scene, create subtitle entries with:
+- **Timing**: Start and end timestamps (synced to dialogue)
+- **Text**: English translation of Tamil dialogue
+- **Line breaks**: Max 2 lines per subtitle (readability for kids/parents)
+
+**SRT Format Example**:
+```srt
+1
+00:00:02,000 --> 00:00:08,000
+Look! My beautiful feathers!
+I am the most handsome in the world!
+
+2
+00:00:09,000 --> 00:00:12,000
+Oh no... he's talking about himself again...
+```
+
+**Alternative Formats**:
+- **VTT**: For web players (similar to SRT)
+- **Dual-language display**: Show both Tamil and English on screen (burns into video)
+
+**Benefits**:
+- Accessible to non-Tamil speakers (parents, educators)
+- SEO optimization for YouTube search
+- Easy to upload as separate track (no video re-rendering)
+- Can be toggled on/off by viewer
 
 ---
 
@@ -292,6 +335,7 @@ Scene 1 (30s) → Transition (0.5s) → Scene 2 (20s) → Transition (0.5s) → 
 5. `background_music.mp3` - Background music (if applicable)
 6. `final_video.mp4` - Complete assembled video
 7. `thumbnail.jpg` - YouTube thumbnail
+8. `english_captions.srt` - English subtitle file (NEW)
 
 ### **Documentation**:
 1. `storyboard.md` - Scene-by-scene breakdown with timing
@@ -385,3 +429,10 @@ Scene 1 (30s) → Transition (0.5s) → Scene 2 (20s) → Transition (0.5s) → 
 ## Version History
 
 - v1.0 (2025-01-27): Initial workflow documentation
+- v1.1 (2025-01-27): Updated based on production testing
+  - Increased scene durations (40-45s opening, 25-35s middle, 35-40s climax, 30-35s resolution)
+  - Target video duration: 3-4 minutes (was 2-5 minutes)
+  - Added explicit "MINIMUM duration" requirements for animation prompts
+  - Required dialogue for ALL scenes (no silent scenes)
+  - Added English captions generation (SRT format)
+  - Added pacing controls ("slow pacing", "hold shots longer")
