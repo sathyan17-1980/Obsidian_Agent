@@ -84,9 +84,10 @@ Research the topic across 6 sources in parallel:
    - Index for future searches
 
 6. **YouTube Transcripts**
-   - Search educational channels
+   - Search educational channels (prioritize: 3Blue1Brown, Two Minute Papers, Lex Fridman, Andrew Ng, etc.)
    - Extract transcript content
    - Summarize key points
+   - **Featured Source**: https://www.3blue1brown.com/ - Exceptional visual explanations of mathematical concepts
 
 **Performance Target**: Complete all 6 sources in <90 seconds
 

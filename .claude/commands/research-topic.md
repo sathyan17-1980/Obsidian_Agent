@@ -216,7 +216,12 @@ Research the topic across 6 sources in parallel. Execute ALL sources concurrentl
 
 **Actions:**
 - Search for educational videos on topic
-- Curated channel list (prioritize quality tech education channels)
+- Curated channel list (prioritize quality tech education channels):
+  - **3Blue1Brown** (https://www.3blue1brown.com/) - Exceptional visual explanations of mathematical/AI concepts
+  - Two Minute Papers - Latest AI research
+  - Lex Fridman - Deep technical interviews
+  - Andrew Ng - ML fundamentals
+  - Andrej Karpathy - Neural networks and deep learning
 - Extract transcripts using youtube-transcript-api
 - Number of videos: Based on depth (minimal: 0-1, moderate: 1-3, deep: 3-5)
 
