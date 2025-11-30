@@ -368,6 +368,78 @@ Based on the `format` parameter, generate appropriate output:
 - No hallucinations (only source-backed info)
 - Proper markdown formatting
 
+**CRITICAL: Research Quality Standards (21 Applicable Points)**
+
+Apply these quality standards from the 55-point framework to ensure high-quality, research-backed content:
+
+**Research Grounding (Core Requirements):**
+1. ✅ Include SPECIFIC technical details from research (not generic claims)
+   - Example: "1536-dimensional vectors" not "high-dimensional vectors"
+   - Example: "achieved 95.97% macro accuracy" not "high accuracy"
+2. ✅ Quote authoritative sources that TEACH something
+   - Use quotes found in your research, not marketing copy
+   - Example: "As Cloudflare's guide explains, '{exact teaching quote}'"
+3. ✅ Reference CONCRETE examples from actual sources
+   - Real algorithms (HNSW, FAISS), actual metrics, specific implementations
+4. ✅ Show research depth through specifics, not vague statements
+   - Cite 8-10+ different sources throughout the document
+5. ✅ ONE memorable concrete example with actual numbers/data
+   - Example: "king" - "man" + "woman" = "queen" (embedding space math)
+   - Example: "15.36 billion numbers searched in <100ms"
+
+**Citation and Source Quality:**
+6. ✅ Authority quotes with exact attribution FROM YOUR RESEARCH
+   - All quotes must come from sources you actually analyzed
+7. ✅ References include actual URLs found in research
+   - No generic "additional reading" - specific resources with links
+8. ✅ Statistics from real sources, not fabricated
+   - Every number must be traceable to a source
+9. ✅ Every claim traceable to a source analyzed
+   - No hallucinations or assumptions
+10. ✅ All claims must have inline citations [1][2][3]
+
+**Technical Depth and Examples:**
+11. ✅ Concrete technical examples FROM ACTUAL SOURCES
+    - Code snippets, algorithms, mathematical formulas from research
+12. ✅ Specific technical details prove expertise
+    - Show depth: dimension counts, latency numbers, accuracy metrics
+13. ✅ Code examples use realistic data, not foo/bar
+    - When including code: use real-world variable names and data
+14. ✅ Simple memorable analogy (ONE, not mixing metaphors)
+    - Make complex concepts accessible with single clear analogy
+
+**Content Structure (Format-Dependent):**
+15. ✅ Real-world applications
+    - Show practical use cases and implementations
+16. ✅ Misconceptions section (for guide/qa formats)
+    - Address common misunderstandings found in research
+17. ✅ Specific, named free resources FOUND IN RESEARCH
+    - "Google's ML Crash Course" not "there are free courses"
+    - Include exact course names, documentation titles, tool names
+18. ✅ "Why this matters" section (for guide/qa formats)
+    - Explicit practical value and outcomes
+
+**Quality Validation:**
+19. ✅ NOT high-level or vague - SPECIFIC findings from research
+    - Bad: "Embeddings are important for AI"
+    - Good: "Embeddings transform text into 1536-dimensional vectors that capture semantic meaning"
+20. ✅ Shows research depth: cites 8-10+ different sources
+    - Demonstrates comprehensive multi-source analysis
+21. ✅ No hallucinations - only source-backed information
+    - Every fact, quote, and example must come from analyzed sources
+
+**Format-Specific Application:**
+- **Summary/Report**: Apply all 21 points, focus on citations and technical depth
+- **Q&A**: Apply all 21 points + misconceptions section + "why this matters"
+- **Comparison**: Apply citation standards + specific metrics from sources
+- **Guide**: Apply all 21 points + misconceptions + resources + "why this matters"
+
+**Technical Level Adjustments:**
+- **Beginner**: Use analogies (#14), explain technical details simply, more context
+- **Moderate**: Balance technical depth with accessibility, some jargon explained
+- **Advanced**: Full technical detail, assume background, dense citations
+- **Expert**: Specialized terminology, research-paper density, extensive citations
+
 ### Step 6: Save to Obsidian Vault
 
 Create organized folder structure:
