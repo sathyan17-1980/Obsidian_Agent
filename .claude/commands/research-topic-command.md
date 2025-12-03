@@ -1,6 +1,6 @@
 ---
 description: Multi-source research agent for LinkedIn & Blog content generation
-argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--drafts 1-5]"
+argument-hint: "[topic] [--depth minimal|light|moderate|deep|extensive] [--drafts 1-5] [--deep-research]"
 ---
 
 # Research Topic - LinkedIn & Blog Content Generator
@@ -41,11 +41,36 @@ Extract:
   - Default: 3 (Technical, Story-Driven, Balanced)
   - More drafts = more variety, but higher cost
 
+- **--deep-research**: Enable iterative, multi-round research exploration - OPTIONAL
+  - **When ABSENT (default)**: Use 6-source parallel approach (fast, predictable)
+    - Execution time: 60-240 seconds (based on depth level)
+    - Queries all 6 sources in parallel: HN, Web, Articles, Obsidian, Drive, YouTube
+    - Structured, predictable output
+    - Best for: Most LinkedIn/blog content needs, known topics
+
+  - **When PRESENT**: Use Task tool with specialized research agent (thorough, adaptive)
+    - Execution time: 5-15 minutes
+    - Iterative exploration: Follows interesting threads, refines questions
+    - Dynamic source selection: Chooses sources based on discoveries
+    - Multi-hop reasoning: "To understand X, first need Y"
+    - Better conflict resolution through deeper investigation
+    - Best for: Complex topics, contradictory information, cutting-edge research, high-stakes content
+
+  - **Tradeoff**: Speed vs. thoroughness - use `--deep-research` when content quality > time constraints
+
 Example valid inputs:
 ```
+# Fast research for LinkedIn/blog (default - 2-4 min total)
 /research-topic "Why AI enthusiasts should learn embeddings"
+
+# Light research with single draft (fastest)
 /research-topic "Transformer architecture basics" --depth light --drafts 1
-/research-topic "Constitutional AI vs RLHF" --depth deep --drafts 5
+
+# Deep research with multiple drafts (thorough)
+/research-topic "Constitutional AI vs RLHF" --deep-research --depth deep --drafts 5
+
+# Iterative deep research for complex topic (5-15 min research + generation)
+/research-topic "How do attention mechanisms differ across transformer variants" --deep-research --depth extensive
 ```
 
 ### Step 2: Verify Prerequisites and Configuration
@@ -80,7 +105,62 @@ Check required configuration before starting research:
    - Verify required packages installed (newspaper3k, youtube-transcript-api, etc.)
    - If missing: Provide installation command
 
-### Step 3: Execute Multi-Source Research (Parallel)
+### Step 3: Execute Multi-Source Research
+
+**First, check if `--deep-research` flag is present in $ARGUMENTS:**
+
+#### Option A: Deep Research Mode (if --deep-research flag present)
+
+If `--deep-research` flag is detected, use the Task tool to launch a specialized research agent for iterative exploration:
+
+**Approach:**
+- Use Task tool with subagent_type="Explore" or subagent_type="general-purpose"
+- Agent performs multi-round research with dynamic source selection
+- Follows interesting threads discovered during initial research
+- Refines questions based on findings
+- Deep dives into contradictions and gaps
+- Synthesizes comprehensive understanding optimized for LinkedIn/blog content
+
+**Agent Prompt Template:**
+```
+Research the following topic comprehensively for LinkedIn and blog content generation using iterative exploration:
+
+**Topic**: {topic}
+**Depth Target**: {depth level}
+**Content Type**: LinkedIn posts + Blog articles
+**Drafts Needed**: {drafts count}
+
+Use the following approach:
+1. Initial broad search across multiple sources (web, documentation, papers, HN discussions)
+2. Identify key subtopics, concrete examples, and authoritative quotes
+3. Follow interesting threads with focused follow-up searches
+4. Resolve contradictions by consulting authoritative sources
+5. Gather concrete examples, technical details, benchmarks, and quotes
+6. Find specific resources (named courses, tools, documentation)
+7. Collect real-world applications with company examples and data
+8. Synthesize findings optimized for LinkedIn/blog content generation
+
+Quality requirements (55-point framework):
+- Concrete examples (not vague statements)
+- Detailed explanations with technical depth
+- All claims must have citations with authority quotes
+- Include specific versions, numbers, algorithms
+- Real-world applications with company names and impact data
+- Specific named resources (courses, tools, documentation)
+- Expert positioning language and practical value statements
+
+Return comprehensive research findings ready for LinkedIn post and blog article generation with personal branding framework.
+```
+
+**Expected outcome**: Agent returns detailed research findings after 5-15 minutes of iterative exploration, optimized for high-quality content generation.
+
+**Skip to Step 4** after receiving agent results.
+
+---
+
+#### Option B: Fast Parallel Research (default - if --deep-research flag absent)
+
+If `--deep-research` flag is NOT present, use the standard 6-source parallel approach:
 
 Research the topic across 6 sources in parallel. Execute ALL sources concurrently for maximum speed.
 
@@ -454,19 +534,19 @@ For each platform (LinkedIn, Blog), generate {num_drafts} variations (default: 3
 - ❌ Generic expert language without positioning
 - ❌ Standalone posts with no series continuity
 
-**Quality Standards (Concrete Examples):**
+**Quality Standards (Concrete Examples from Your Posts):**
 
 **Concrete vs. Vague:**
-- ❌ "Embeddings are important for AI" (vague)
-- ✅ "'king' - 'man' + 'woman' = 'queen' in embedding space illustrates how semantic relationships are captured mathematically" (concrete)
+- ❌ "Vector databases are fast" (vague)
+- ✅ "searching through 10 million document embeddings takes just 80 milliseconds. This is due to algorithms like HNSW (Hierarchical Navigable Small World)" (concrete with metrics and algorithms)
 
 **Generic vs. Personal:**
-- ❌ "Here's what you need to know about embeddings" (generic educator)
-- ✅ "My friends have often asked me to share my learnings on embeddings, so I'm creating this weekly series..." (personal brand)
+- ❌ "Vector databases are important for AI systems" (generic educator)
+- ✅ "Continuing from last week's post on Embeddings where I mentioned that understanding embeddings helps you understand the very foundation..." (personal series continuity)
 
 **High-level vs. Detailed:**
-- ❌ "Vector databases store embeddings efficiently" (high-level)
-- ✅ "As Cloudflare puts it, 'embeddings make it possible for computers to understand the relationships between words' - they transform real-world data into mathematical representations" (detailed with quote)
+- ❌ "Vector databases store embeddings in multiple dimensions" (high-level)
+- ✅ "The word 'king' is represented as a single vector with 1536 dimensions. Each dimension captures different abstract patterns—potentially gender associations, formality, historical context, royalty, and hundreds of other nuanced features. For eg. the 1st dimension could store 'How masculine vs feminine?', the second dimension could store 'How formal is this?' and so on for each of the 1536 dimensions." (detailed with specific breakdown)
 
 #### 5.1 LinkedIn Post Generation
 
@@ -515,9 +595,9 @@ Example: "Additional documents to read on this:"
 #{hashtag1} #{hashtag2} #{hashtag3}
 ```
 
-**Reference Example:**
+**Reference Examples:**
 
-Your "Why Every AI Enthusiast Should Master Embeddings" post demonstrates the perfect structure:
+**Example 1: "Why Every AI Enthusiast Should Master Embeddings" (Week 1)**
 
 1. ✅ Personal framing: "My friends have often asked me..."
 2. ✅ Series positioning: "creating my first post on AI"
@@ -530,7 +610,23 @@ Your "Why Every AI Enthusiast Should Master Embeddings" post demonstrates the pe
 9. ✅ Series continuity: "In next week's post, I will explain what Vector databases are..."
 10. ✅ Additional reading: "Embeddings Guide - Google ML, What are Embeddings - Cloudflare"
 
-Every draft generated by this tool MUST follow this pattern.
+**Example 2: "Why AI Enthusiasts Should Learn About Vector Databases" (Week 2)**
+
+1. ✅ Series callback: "Continuing from last week's post on Embeddings..."
+2. ✅ Quick recap: "Vector embeddings are machine-understandable representations of data"
+3. ✅ Specific technical details: "1536 dimensions has become the industry standard—especially with OpenAI's text-embedding-ada-002 model"
+4. ✅ Nuanced explanation: "While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision..."
+5. ✅ Trade-off awareness: "The dimension being chosen is a trade-off between accuracy, speed, and cost"
+6. ✅ Concrete revisited example: "Let's revisit last week's example: 'king' minus 'man' plus 'woman' equals 'queen'"
+7. ✅ Technical depth: "The word 'king' is represented as a single vector with 1536 dimensions. Each dimension captures different abstract patterns—potentially gender associations, formality, historical context, royalty..."
+8. ✅ Real-world performance metrics: "searching through 10 million document embeddings takes just 80 milliseconds"
+9. ✅ Specific algorithms: "This is due to algorithms like HNSW (Hierarchical Navigable Small World)"
+10. ✅ Why this matters: "Vector databases is one of the reasons Retrieval-Augmented Generation (RAG) do not hallucinate"
+11. ✅ Expert positioning: "understanding vector databases is the difference between copying tutorials and architecting real solutions"
+12. ✅ Series continuity: "In next week's post (week 3), I will explain how to choose the right vector database for your specific use case"
+13. ✅ Additional reading: "What is a Vector Database - Cloudflare Learning, Vector Databases Embeddings Applications Course - DeepLearning.AI"
+
+Every draft generated by this tool MUST follow this pattern and voice.
 
 **CRITICAL: LinkedIn Quality Requirements (All 55 Points)**
 
@@ -1734,8 +1830,8 @@ You can now download the PDF from your repository or find it in the locations ab
 
 ## References
 
-- **Full Documentation**: `.claude/commands/research-topic-merged.md`
-- **Generic Research Command**: `.claude/commands/research-generic.md` (for non-content research)
+- **Full Documentation**: `.claude/commands/research-topic-documentation.md`
+- **Generic Research Command**: `.claude/commands/research-generic-command.md` (for non-content research)
 - **Brave API Config**: `docs/brave-api-configuration.md`
 - **Coding Standards**: `CLAUDE.md`
 - **Voice Profile Setup**: `scripts/create_voice_profile.py`
