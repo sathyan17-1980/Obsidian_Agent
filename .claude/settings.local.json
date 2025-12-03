@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(uv run mypy:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(python:*)",
+      "Bash(pip --version:*)",
+      "Bash(python3 -m pip:*)",
+      "Bash(python3 -m uv:*)",
+      "Bash(timeout 10 python3:*)",
+      "SlashCommand(/research-topic \"Neural Networks Part 1: How Neural Networks Learn from Data\" --depth deep --drafts 1)",
+      "Bash(python3:*)",
+      "WebSearch",
+      "SlashCommand(/research-topic \"Neural Networks Part 2: Backpropagation and Training Deep Networks\" --depth deep --drafts 1)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
