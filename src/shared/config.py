@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     obsidian_vault_path: str = ""
     """Path to the Obsidian vault directory. Leave empty to disable vault tools."""
 
+    # Research Output Paths
+    linkedin_post_path: str = ""
+    """Path where LinkedIn posts should be saved (relative or absolute). Defaults to '{vault}/AI research/LinkedIn Post'."""
+
+    blog_post_path: str = ""
+    """Path where Blog posts should be saved (relative or absolute). Defaults to '{vault}/AI research/Blog Post'."""
+
     # Consolidated Obsidian Tools (Anthropic Option B Architecture)
     enable_obsidian_note_manager: bool = True
     """Enable consolidated note management tool (read/write/patch/append/delete)."""
