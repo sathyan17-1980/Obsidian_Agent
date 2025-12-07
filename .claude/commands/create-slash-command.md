@@ -554,7 +554,7 @@ See: `.claude/commands/core_commands/commit.md`
 - Clear validation
 
 ### Complex Command Example
-See: `.claude/commands/research-generic.md`
+See: `.claude/commands/research-generic-command.md`
 - Multiple parameters with defaults
 - Multi-step parallel execution
 - Flexible output formats

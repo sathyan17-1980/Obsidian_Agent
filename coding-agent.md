@@ -1,5 +1,269 @@
 # Coding Agent Implementation Plan: Folder Management Tool Enhancement
 
+---
+
+# PHASE 0: Research & Discovery
+
+**Purpose:** Document the research journey that led to this implementation plan.
+
+---
+
+## 0.1: Exploration of Existing Codebase (Prompt 1)
+
+### Files Explored
+
+**Core Agent Architecture:**
+- `src/agent/agent.py` - Agent initialization and tool registration patterns
+  - Pattern: Tools registered via `@agent.tool` decorator
+  - Pattern: Agent uses Pydantic AI for tool orchestration
+
+**Similar Existing Tool:**
+- `src/tools/obsidian_note_manager/` - Pattern to follow for folder management
+  - `tool.py`: Enhanced agent-friendly docstrings with "Use this when" / "Do NOT use" sections
+  - `schemas.py`: Pydantic models with validation (@model_validator)
+  - `service.py`: Business logic with structured logging, async operations
+
+**Shared Utilities:**
+- `src/shared/vault_security.py` - Path validation (`validate_vault_path()`)
+- `src/shared/logging.py` - Structured logging (`get_logger()`)
+- `src/shared/config.py` - Configuration and system prompt
+
+### Key Patterns Discovered
+
+**Pattern 1: Agent-Friendly Tool Docstrings**
+- Comprehensive "Use this when" section (3-5 specific scenarios)
+- Strong "Do NOT use this for" section pointing to correct alternatives
+- Performance notes with token estimates
+- Examples with realistic data (not "foo"/"bar")
+
+**Pattern 2: Path Validation**
+- All paths validated via `validate_vault_path(vault_root, user_path)`
+- Security checks prevent path traversal, absolute paths
+- Vault boundary enforcement
+
+**Pattern 3: Async Operations**
+- `aioshutil` for async file operations
+- `aiofiles` for async file I/O
+- No blocking operations
+
+**Pattern 4: Cross-Platform Compatibility**
+- Use `pathlib.Path` (not `os.path`)
+- Normalize paths to forward slashes
+- Validate Windows reserved names
+
+---
+
+## 0.2: Implementation Options Analysis (Prompt 2)
+
+### Research Question
+How should we build folder operations for the Obsidian vault? What are the tradeoffs?
+
+### Option 1: Extend Existing note_manage Tool
+- **Description:** Add folder operations to the existing `obsidian_note_manage` tool
+- **Pros:**
+  - Single tool for all file system operations
+  - No need to teach agent about tool boundaries
+  - Simpler mental model (one tool for vault manipulation)
+- **Cons:**
+  - Tool confusion - agent may use wrong operations
+  - Mixed responsibilities (content vs. structure)
+  - Harder to maintain clear boundaries
+  - Risk of breaking existing note operations
+- **Effort:** Medium (modifying existing tool)
+- **Precedent:** No precedent in codebase (each tool has clear scope)
+
+### Option 2: Create Dedicated folder_manage Tool ✅ RECOMMENDED
+- **Description:** Build a new `obsidian_folder_manage` tool specifically for folder operations
+- **Pros:**
+  - Clear separation of concerns (folders vs. notes)
+  - Agent can select tool based on path (.md extension → note_manage, no extension → folder_manage)
+  - Easier to maintain and test separately
+  - Follows existing pattern of focused, single-purpose tools
+  - No risk of breaking existing functionality
+- **Cons:**
+  - Agent needs to learn when to use which tool
+  - More tools in the system
+- **Effort:** Medium (new tool creation)
+- **Precedent:** ✅ Follows pattern from note_manage, vault_query, graph_analyze
+
+### Option 3: Generic Resource Manager
+- **Description:** Create a generic tool that handles both files and folders
+- **Pros:**
+  - Most flexible
+  - Could handle any vault resource
+- **Cons:**
+  - Too abstract - agent will be confused
+  - Harder to provide clear guidance
+  - Goes against single-responsibility principle
+- **Effort:** High (complex abstraction)
+- **Precedent:** ❌ No precedent in codebase
+
+### Selected Approach: Option 2 (Dedicated folder_manage Tool)
+
+**Rationale:**
+1. **Separation of concerns:** Folders = structure, Notes = content
+2. **Clear tool selection:** Path extension determines tool (`.md` → note_manage, no extension → folder_manage)
+3. **Maintainability:** Easier to test and modify in isolation
+4. **Consistency:** Follows existing codebase pattern of focused tools
+5. **Lower risk:** No impact on existing note operations
+
+**Tool Boundaries:**
+- `obsidian_folder_manage`: CREATE, RENAME, MOVE, DELETE, LIST, ARCHIVE folders
+- `obsidian_note_manage`: CREATE, READ, UPDATE, PATCH, APPEND, DELETE notes
+- Path validation layer rejects `.md` files from folder_manage
+
+---
+
+## 0.3: Technology & Library Research (Prompt 3)
+
+### Required Libraries
+
+**1. aioshutil**
+- **Purpose:** Async file system operations (move, copy, delete folders)
+- **Why Needed:** Non-blocking folder operations for archive/move/delete
+- **Already in Project:** ✅ Yes (check `pyproject.toml`)
+- **Cross-Platform:** ✅ Windows, Linux, macOS
+- **Async Support:** ✅ Yes (primary purpose)
+- **Documentation:** https://aioshutil.readthedocs.io/
+  - Key sections: `async def move()`, `async def copytree()`, `async def rmtree()`
+  - Relevant features: Async wrappers for all shutil operations
+- **Usage in feature:**
+  - Archive operation: `await aioshutil.move(source, destination)`
+  - Move operation: `await aioshutil.move(source, destination)`
+  - Delete operation: `await aioshutil.rmtree(path)`
+
+**2. pathlib (Built-in)**
+- **Purpose:** Cross-platform path handling
+- **Why Needed:** Windows uses backslashes, Unix uses forward slashes - pathlib abstracts this
+- **Already in Project:** ✅ Yes (built-in Python library)
+- **Cross-Platform:** ✅ Windows, Linux, macOS
+- **Documentation:** https://docs.python.org/3/library/pathlib.html
+  - Key sections: `Path` class, `resolve()`, `relative_to()`
+  - Best practices: Always use `pathlib.Path`, not `os.path`
+- **Usage in feature:**
+  - Path manipulation: `full_path = Path(vault_root) / Path(user_path)`
+  - Normalization: `str(path).replace("\\", "/")`
+
+**3. datetime (Built-in)**
+- **Purpose:** Generate date-based archive paths
+- **Why Needed:** Archive operation creates `archive/YYYY-MM-DD/folder` structure
+- **Already in Project:** ✅ Yes (built-in)
+- **Cross-Platform:** ✅ Windows, Linux, macOS
+- **Usage in feature:**
+  - Archive paths: `datetime.now().strftime("%Y-%m-%d")`
+  - Custom formats: Configurable via `date_format` parameter
+
+**4. pydantic (Already in Project)**
+- **Purpose:** Request/response validation
+- **Why Needed:** Validate folder operation requests, enum validation
+- **Already in Project:** ✅ Yes (core dependency)
+- **Usage in feature:**
+  - Schema validation: `ManageFolderRequest` model
+  - Enum validation: `FolderOperation` enum
+
+### Cross-Platform Compatibility
+
+**Windows:**
+- ✅ aioshutil works on Windows
+- ✅ pathlib handles backslashes automatically
+- ⚠️ Must validate Windows reserved names (CON, PRN, AUX, NUL, COM1-9, LPT1-9)
+- ⚠️ Must normalize paths to forward slashes for Obsidian compatibility
+
+**macOS:**
+- ✅ All libraries compatible
+- ⚠️ Unicode normalization (NFD vs NFC for accented characters)
+- ✅ Case-sensitive filesystem (APFS)
+
+**Linux:**
+- ✅ All libraries compatible
+- ✅ Case-sensitive filesystem
+- ✅ Symlink support with `pathlib.Path.is_symlink()`
+
+**Implementation Considerations:**
+1. Always normalize paths to forward slashes (Obsidian standard)
+2. Validate against most restrictive platform (Windows) even on Linux/macOS
+3. Use async operations throughout (no blocking I/O)
+4. Test on all three platforms via CI/CD matrix
+
+---
+
+## 0.4: Constraints & Requirements (Prompt 4)
+
+### Security Constraints
+
+**Vault Boundary Enforcement:**
+- ✅ All folder operations MUST be restricted to vault path specified in `.env`
+- ✅ Load vault path from `VAULT_PATH` environment variable
+- ✅ Validate all paths using `validate_vault_path(vault_root, user_path)`
+- ✅ Reject absolute paths outside vault (`/etc/passwd`, `C:\Windows`)
+- ✅ Reject path traversal attempts (`../../../etc/passwd`)
+- ✅ Protect sensitive folders (`.obsidian`, `.git`, `.env`)
+
+**Implementation:**
+```python
+# In service.py
+full_path_str = validate_vault_path(vault_path, request.path)  # Raises SecurityError if invalid
+full_path = Path(full_path_str)
+vault_root = Path(vault_path).resolve()
+
+# Ensure operation stays within vault
+if not full_path.resolve().is_relative_to(vault_root):
+    raise SecurityError("Operation outside vault boundary")
+```
+
+### Input Validation
+
+**Path Validation:**
+- Reject paths with `.md` extension (those belong to note_manage)
+- Reject paths with any file extension (folders don't have extensions)
+- Validate Windows reserved names (even on Linux/macOS)
+- Validate invalid characters (`<>:"|?*`)
+
+**Operation-Specific Validation:**
+- DELETE: Require `confirm_path` matching `path` (prevent accidental deletions)
+- RENAME: Validate `new_name` doesn't contain path separators
+- MOVE: Detect circular moves (moving folder into itself)
+- ARCHIVE: Prevent archiving to existing destination
+
+### Technical Constraints
+
+**Performance Requirements:**
+- CREATE: < 50ms target
+- RENAME/MOVE/ARCHIVE: < 500ms target (depends on wikilink scanning)
+- DELETE: < 200ms target
+- LIST: < 100ms for immediate children, < 500ms for recursive
+
+**Token Efficiency:**
+- Minimal format: ~50 tokens (operation status only)
+- Concise format: ~150 tokens (status + key metadata)
+- Detailed format: ~300+ tokens (full details + listings)
+
+**Resource Limits:**
+- Wikilink scan: Limited to 1000 notes (configurable)
+- LIST recursive: Max depth 5 levels (prevent infinite recursion)
+- LIST pagination: Max 200 folders per request
+
+### Business Requirements
+
+**User Story:**
+```
+As an Obsidian user
+I want to archive old project folders with automatic date-based organization
+So that I can keep my vault organized without manually creating dated folders
+```
+
+**Success Criteria:**
+- ✅ Agent reliably distinguishes folder operations from note operations
+- ✅ Archive operation creates `archive/YYYY-MM-DD/folder` structure
+- ✅ Wikilinks automatically updated on folder rename/move/archive
+- ✅ Path validation prevents operations on `.md` files with helpful errors
+- ✅ All operations work on Windows, macOS, Linux
+- ✅ 90%+ test coverage with comprehensive edge case handling
+
+---
+
+# Implementation Plan
+
 ## Mission
 
 Enhance the existing `obsidian_folder_manage` tool to ensure **complete separation** from `obsidian_note_manage` and add **archive operation** with automatic date-based organization. The LLM must reliably distinguish between folder operations (structure) and note operations (content).
@@ -758,7 +1022,24 @@ if folder_operation in {FolderOperation.RENAME, FolderOperation.MOVE, FolderOper
 
 ---
 
-## Part 3: Testing
+## Part 3: Testing & Validation
+
+### Pre-Deployment Test Suite
+
+| Test Category | # Tests | Duration | Automated | Command |
+|---------------|---------|----------|-----------|---------|
+| **Path Validation** | 3 tests | ~5 sec | ✅ Yes | `pytest test_service.py::TestSecurityValidation -v` |
+| **Archive Operation** | 7 tests | ~10 sec | ✅ Yes | `pytest test_service.py::TestArchiveFolderOperation -v` |
+| **Unit Tests (Existing)** | 20+ tests | ~30 sec | ✅ Yes | `pytest tests/tools/obsidian_folder_manager/ -m unit` |
+| **Integration Tests** | 10 tests | ~10 sec | ✅ Yes | `pytest tests/integration/ -k folder` |
+| **Security Tests** | 6 tests | ~5 sec | ✅ Yes | `pytest tests/security/ -k folder` |
+| **Platform Tests** | 9 tests | ~15 min | ✅ Yes (CI/CD) | GitHub Actions matrix |
+| **Linting & Type Check** | 4 checks | ~1 min | ✅ Yes | `ruff check` + `mypy --strict` |
+| **TOTAL** | **55+ tests** | **~17 min** | **All automated** | See sections below |
+
+**Success Criteria:** All automated tests pass
+
+---
 
 ### Test 1: Archive Operation Tests
 
@@ -1038,9 +1319,7 @@ class TestSecurityValidation:
 
 ---
 
-## Part 4: Cross-Platform Testing Setup
-
-### GitHub Actions CI/CD
+### Cross-Platform Testing Setup
 
 **File**: `.github/workflows/test.yml` (create if doesn't exist)
 
@@ -1092,55 +1371,70 @@ jobs:
 
 ---
 
-## Part 5: Documentation Updates
+## Validation Commands Reference
 
-### Update README
-
-**File**: `README.md`
-
-Update the tool description section (around line 145) to include ARCHIVE:
-
-```markdown
-### 4. obsidian_graph_analyze - Knowledge Graph
-
-...existing content...
-
-### 5. obsidian_folder_manage - Folder Operations
-
-Unified interface for creating, renaming, moving, archiving, deleting, and listing folders.
-
-```python
-# Create nested folder structure
-obsidian_folder_manage(
-    path="projects/2025/website",
-    operation="create",
-    create_parents=True
-)
-
-# Rename folder and update wikilinks
-obsidian_folder_manage(
-    path="projects/alpha",
-    operation="rename",
-    new_name="website-redesign",
-    update_wikilinks=True
-)
-
-# Archive old project with auto-dating
-obsidian_folder_manage(
-    path="projects/2023/old-website",
-    operation="archive"
-)
-# → Moves to: archive/2025-01-16/old-website
-# → Updates all wikilinks automatically
-
-# List folders with statistics
-obsidian_folder_manage(
-    path="projects",
-    operation="list",
-    include_stats=True,
-    response_format="concise"
-)
+### Step 1: Linting & Type Checking
+```bash
+uv run ruff check src/tools/obsidian_folder_manager/
+uv run ruff check --fix src/tools/obsidian_folder_manager/
+uv run mypy src/tools/obsidian_folder_manager/ --strict
 ```
+
+### Step 2: Unit Tests
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/ -v -m unit \
+    --cov=src/tools/obsidian_folder_manager \
+    --cov-report=term-missing \
+    --cov-fail-under=90
+```
+
+### Step 3: Archive Operation Tests
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/test_service.py::TestArchiveFolderOperation -v
+```
+
+### Step 4: Path Validation Tests
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/test_service.py::TestSecurityValidation -v
+```
+
+### Step 5: All Folder Manager Tests
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/ -v
+```
+
+### Step 6: Integration Tests
+```bash
+uv run pytest tests/integration/ -v -k folder
+```
+
+---
+
+## Expected Test Results
+
+After implementation, running tests should show:
+
+```bash
+uv run pytest tests/tools/obsidian_folder_manager/ -v
+
+# Expected output:
+TestCreateFolderOperation::test_create_simple_folder PASSED
+TestRenameFolderOperation::test_rename_simple_folder PASSED
+TestMoveFolderOperation::test_move_folder_to_existing_destination PASSED
+TestDeleteFolderOperation::test_delete_empty_folder PASSED
+TestListFolderOperation::test_list_immediate_children PASSED
+TestArchiveFolderOperation::test_archive_simple_folder PASSED
+TestArchiveFolderOperation::test_archive_with_wikilink_updates PASSED
+TestArchiveFolderOperation::test_archive_custom_base PASSED
+TestArchiveFolderOperation::test_archive_custom_date_format PASSED
+TestArchiveFolderOperation::test_archive_dry_run PASSED
+TestArchiveFolderOperation::test_archive_destination_exists_error PASSED
+TestArchiveFolderOperation::test_archive_folder_not_found PASSED
+TestSecurityValidation::test_rejects_file_path_with_md_extension PASSED
+TestSecurityValidation::test_rejects_file_path_with_any_extension PASSED
+TestSecurityValidation::test_accepts_folder_path_without_extension PASSED
+
+============================== 35+ passed in 0.5s ==============================
 ```
 
 ---
@@ -1178,53 +1472,6 @@ obsidian_folder_manage(
 - [ ] Run linters: `uv run ruff check src/ && uv run mypy src/`
 - [ ] Run all tests: `uv run pytest tests/ -v`
 - [ ] Verify 90%+ test coverage on service layer
-
----
-
-## Expected Test Results
-
-After implementation, running tests should show:
-
-```bash
-uv run pytest tests/tools/obsidian_folder_manager/ -v
-
-# Expected output:
-TestCreateFolderOperation::test_create_simple_folder PASSED
-TestRenameFolderOperation::test_rename_simple_folder PASSED
-TestMoveFolderOperation::test_move_folder_to_existing_destination PASSED
-TestDeleteFolderOperation::test_delete_empty_folder PASSED
-TestListFolderOperation::test_list_immediate_children PASSED
-TestArchiveFolderOperation::test_archive_simple_folder PASSED
-TestArchiveFolderOperation::test_archive_with_wikilink_updates PASSED
-TestArchiveFolderOperation::test_archive_custom_base PASSED
-TestArchiveFolderOperation::test_archive_custom_date_format PASSED
-TestArchiveFolderOperation::test_archive_dry_run PASSED
-TestArchiveFolderOperation::test_archive_destination_exists_error PASSED
-TestArchiveFolderOperation::test_archive_folder_not_found PASSED
-TestSecurityValidation::test_rejects_file_path_with_md_extension PASSED
-TestSecurityValidation::test_rejects_file_path_with_any_extension PASSED
-TestSecurityValidation::test_accepts_folder_path_without_extension PASSED
-
-============================== 35+ passed in 0.5s ==============================
-```
-
----
-
-## Key Implementation Notes
-
-1. **Import datetime**: Add `from datetime import datetime` at top of `service.py` for archive operation
-
-2. **Path normalization**: Always use `.replace("\\", "/")` when returning paths to ensure cross-platform consistency
-
-3. **Error messages**: Follow the pattern of clear, actionable errors with tool selection guidance
-
-4. **Logging**: Use structured logging with `logger.info()` for all operations, include relevant context
-
-5. **Type hints**: Maintain strict type annotations for all functions (required by mypy)
-
-6. **Async operations**: Use `aioshutil.move()` for async file operations, `aiofiles` for async file I/O
-
-7. **Token estimates**: Update token estimates in responses to help LLM track usage
 
 ---
 

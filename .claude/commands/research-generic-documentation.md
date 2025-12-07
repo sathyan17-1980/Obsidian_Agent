@@ -12,6 +12,166 @@
 
 ---
 
+## Command Examples Reference
+
+### Basic Usage (Fast - Default)
+
+```bash
+# Simple research, default settings (2 min)
+/research-generic "what are embeddings"
+
+# Specify output format
+/research-generic "transformer architecture" --format summary
+
+# Technical report for advanced users
+/research-generic "RLHF in language models" --format report --depth deep
+
+# Comparison analysis
+/research-generic "RAG vs fine-tuning" --format comparison --depth moderate
+
+# Beginner's guide
+/research-generic "neural networks basics" --format guide
+```
+
+### With Deep Research Flag (Iterative Exploration)
+
+```bash
+# Deep iterative research (5-15 min)
+/research-generic "how do attention mechanisms differ across transformer variants" --deep-research
+
+# Deep research with specific format
+/research-generic "RAG vs fine-tuning" --deep-research --format comparison --depth extensive
+
+# Deep research for cutting-edge topics
+/research-generic "constitutional AI safety mechanisms" --deep-research --depth deep --format report
+```
+
+### With Content Generation Flags
+
+```bash
+# Research + LinkedIn post (no personal branding)
+/research-generic "vector databases explained" --format guide --linkedin
+
+# Research + Blog article (no personal branding)
+/research-generic "why learn embeddings" --format guide --blog
+
+# Research + LinkedIn + Blog with personal branding
+/research-generic "constitutional AI safety" --linkedin --blog --branding
+
+# Deep research + full content generation
+/research-generic "multimodal AI advances" --deep-research --linkedin --blog --branding --depth deep
+```
+
+### Complete Examples with All Options
+
+```bash
+# Quick fact-check (minimal depth)
+/research-generic "what is the capital of France" --depth minimal --format summary
+
+# Standard research with LinkedIn
+/research-generic "neural networks basics" --format guide --linkedin
+
+# Deep comprehensive research with all content (8-20 min)
+/research-generic "attention mechanisms in transformers" \
+  --deep-research \
+  --depth extensive \
+  --format report \
+  --linkedin \
+  --blog \
+  --branding
+```
+
+### By Output Format
+
+```bash
+# Summary format (default - key findings)
+/research-generic "embeddings in ML" --format summary
+
+# Technical report (formal structure)
+/research-generic "RLHF explained" --format report --depth deep
+
+# Q&A document (question-answer style)
+/research-generic "what are vector databases" --format qa
+
+# Comparison (side-by-side analysis)
+/research-generic "RAG vs fine-tuning" --format comparison
+
+# Beginner's guide (ELI5 style)
+/research-generic "neural networks" --format guide
+```
+
+### By Depth Level
+
+```bash
+# Minimal: Quick fact-check (~60s, $0.10)
+/research-generic "what is Python" --depth minimal
+
+# Light: Basic research (~90s, $0.12)
+/research-generic "transformer basics" --depth light
+
+# Moderate: Standard research (~120s, $0.15) - DEFAULT
+/research-generic "embeddings explained" --depth moderate
+
+# Deep: Comprehensive (~180s, $0.18)
+/research-generic "RAG architecture" --depth deep
+
+# Extensive: Multi-topic dive (~240s, $0.20+)
+/research-generic "multimodal AI in 2024" --depth extensive
+```
+
+### Time & Cost Comparison
+
+| Command | Time | Cost | Best For |
+|---------|------|------|----------|
+| `--depth minimal` | ~60s | ~$0.10 | Quick facts, testing |
+| `--depth moderate` (default) | ~120s | ~$0.15 | Standard research |
+| `--depth deep` | ~180s | ~$0.18 | Complex topics |
+| `--deep-research` | 5-15 min | ~$0.30 | Iterative exploration |
+| `--deep-research --linkedin --blog` | 8-20 min | ~$0.40 | Full content publishing |
+
+### Comparison: `/research-generic` vs `/research-topic`
+
+| Feature | `/research-generic` | `/research-topic` |
+|---------|-------------------|------------------|
+| **Primary Purpose** | Research with flexible output formats | LinkedIn & Blog content generation |
+| **Default Output** | Research only (no LinkedIn/blog) | ALWAYS generates LinkedIn + Blog |
+| **Content Flags** | Optional (`--linkedin`, `--blog`, `--branding`) | Not needed (always generates both) |
+| **Output Formats** | summary, report, qa, comparison, guide | LinkedIn + Blog (multiple drafts) |
+| **Draft Variations** | N/A (single output per format) | 1-5 drafts (default: 3) |
+| **Personal Branding** | Optional via `--branding` flag | Always applied (built-in) |
+| **Default Time** | 2 min | 3-4 min |
+| **Best For** | Research-only, flexible formats, optional content | Content publishing, multiple drafts |
+
+### When to Use `/research-generic`
+
+✅ **Use this command when:**
+- You want research output only (no content generation)
+- You need specific formats: comparison, Q&A, technical report
+- You want optional LinkedIn/blog generation (not mandatory)
+- You prefer objective, informative content without personal branding
+- You need flexibility in output structure
+
+❌ **Don't use this when:**
+- You specifically want LinkedIn posts and blog articles with personal branding
+- You want multiple draft variations to choose from
+- You're building thought leadership content (use `/research-topic` instead)
+
+### When to Use `/research-topic`
+
+✅ **Use this command when:**
+- You're creating LinkedIn posts and blog articles
+- You want multiple draft variations to choose from (1-5 drafts)
+- You want personal branding framework applied automatically
+- You're building thought leadership content
+- You need platform-optimized content (LinkedIn + Blog)
+
+❌ **Don't use this when:**
+- You only want research output (use `/research-generic` instead)
+- You need specific formats like comparison or Q&A (use `/research-generic` instead)
+- You don't want content generation at all
+
+---
+
 ## What This Agent Does
 
 The Generic Research Consolidator is a versatile multi-source research system that:
@@ -135,6 +295,55 @@ GIT COMMIT & PUSH
 - Strengths/weaknesses
 - Pricing analysis
 - Recommendations
+
+---
+
+## Quality Standards for Research Output
+
+Apply these quality standards to ALL research outputs (regardless of format or flags):
+
+### Concrete vs. Vague Examples
+
+Always provide specific, concrete examples rather than vague generalizations.
+
+- ❌ **Vague**: "Vector databases are fast"
+- ✅ **Concrete**: "searching through 10 million document embeddings takes just 80 milliseconds. This is due to algorithms like HNSW (Hierarchical Navigable Small World)"
+
+- ❌ **Vague**: "Embeddings have many dimensions"
+- ✅ **Concrete**: "1536 dimensions has become the industry standard—especially with OpenAI's text-embedding-ada-002 model. While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision, and some lightweight models use just 384 dimensions for speed-critical applications"
+
+- ❌ **Vague**: "Vector databases help with AI applications"
+- ✅ **Concrete**: "Vector databases is one of the reasons Retrieval-Augmented Generation (RAG) do not hallucinate, grounding LLM responses in actual data. This is one of the reasons we are able to build Smart assistants that remember context, able to understand meaning"
+
+### High-level vs. Detailed Explanations
+
+Provide detailed explanations with technical depth, not just high-level overviews.
+
+- ❌ **High-level**: "Vector databases store embeddings in multiple dimensions"
+- ✅ **Detailed**: "The word 'king' is represented as a single vector with 1536 dimensions. Each dimension captures different abstract patterns—potentially gender associations, formality, historical context, royalty, and hundreds of other nuanced features. For eg. the 1st dimension could store 'How masculine vs feminine?', the second dimension could store 'How formal is this?' and so on for each of the 1536 dimensions"
+
+- ❌ **High-level**: "Dimension choice affects performance"
+- ✅ **Detailed**: "The dimension being chosen is a trade-off between accuracy, speed, and cost. While 1536 has become the industry standard, some are moving to 3072 dimensions for even higher precision, and some lightweight models use just 384 dimensions for speed-critical applications"
+
+- ❌ **High-level**: "Vector databases enable fast search"
+- ✅ **Detailed**: "When you search, the search query is converted into a vector with the same 1536 dimensions. The vector database then calculates which stored vectors are closest in this dimensional space using similarity measures and returns the most relevant matches. The speed is amazing: searching through 10 million document embeddings takes just 80 milliseconds"
+
+### Citation Requirements
+
+- ALL factual claims must have citations
+- Include specific quotes from authoritative sources when possible
+- Format: "As [Source] puts it, '[exact quote]'" or [Fact (Source, Year)]
+- Prefer primary sources over secondary (.edu, arxiv, official documentation)
+- Include publication dates when available
+
+### Technical Details
+
+Include specific technical details rather than generic descriptions:
+
+- Specific versions: "Python 3.11+, PyTorch 2.0, CUDA 11.8"
+- Concrete numbers: "1536-dimensional vectors", "10ms latency", "95% recall"
+- Named algorithms: "HNSW (Hierarchical Navigable Small World)", "cosine similarity", "k-NN search"
+- Exact terminology: "semantic search", "embedding space", "vector similarity"
 
 ---
 
@@ -490,7 +699,13 @@ research_generic(
     depth: str = "moderate",           # minimal, light, moderate, deep, extensive
     format: str = "summary",           # summary, report, qa, comparison, guide
     max_sources: int = 30,             # Maximum sources to aggregate
-    obsidian_vault_path: str = None    # Path to Obsidian vault (REQUIRED)
+    obsidian_vault_path: str = None,   # Path to Obsidian vault (REQUIRED)
+
+    # NEW: Optional flags
+    deep_research: bool = False,       # Enable iterative multi-round research (5-15 min)
+    linkedin: bool = False,            # Generate LinkedIn post (150-300 words)
+    blog: bool = False,                # Generate blog article (800-1500 words)
+    branding: bool = False             # Apply personal branding (requires linkedin/blog)
 )
 ```
 
@@ -739,6 +954,58 @@ Authority Scores:
 
 ---
 
+### 6. Deep Iterative Research (NEW)
+
+```bash
+# Deep research mode for complex topic
+/research-generic "How do attention mechanisms differ across transformer variants" \
+  --deep-research \
+  --depth deep \
+  --format report
+```
+
+**Time:** ~5-15 minutes (iterative exploration)
+**Cost:** ~$0.25-0.40 (depends on iterations)
+**Output:** Comprehensive research with multi-hop reasoning and better conflict resolution
+**Best for:** Complex topics, contradictory information, cutting-edge research
+
+---
+
+### 7. Research + LinkedIn Content (NEW)
+
+```bash
+# Research with LinkedIn post generation
+/research-generic "Why learn embeddings" \
+  --format guide \
+  --linkedin
+```
+
+**Time:** ~2-3 minutes
+**Cost:** ~$0.16
+**Output:** Research guide + informative LinkedIn post (150-300 words)
+
+---
+
+### 8. Research + LinkedIn + Blog with Personal Branding (NEW)
+
+```bash
+# Deep research with full content generation and personal branding
+/research-generic "Vector databases explained" \
+  --deep-research \
+  --depth deep \
+  --format guide \
+  --linkedin \
+  --blog \
+  --branding
+```
+
+**Time:** ~8-20 minutes
+**Cost:** ~$0.35-0.50
+**Output:** Deep research + LinkedIn post + blog article (both with personal branding framework)
+**Best for:** High-quality content publishing with comprehensive research
+
+---
+
 ## Data Models
 
 ### Research Query (Input)
@@ -977,7 +1244,7 @@ research_generic(
 
 ---
 
-## Differences from research-topic-merged.md
+## Differences from research-topic-documentation.md
 
 | Feature | Generic Consolidator | LinkedIn/Blog Consolidator |
 |---------|---------------------|---------------------------|
@@ -1015,7 +1282,7 @@ research_generic(
 
 ## References
 
-- **Specialized Version:** `.claude/commands/research-topic-merged.md`
+- **Specialized Version:** `.claude/commands/research-topic-documentation.md`
 - **Brave API Config:** `docs/brave-api-configuration.md`
 - **Coding Standards:** `CLAUDE.md`
 
